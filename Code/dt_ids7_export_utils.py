@@ -26,14 +26,14 @@ def filter_cancelled(df_ids7, verbose=False):
     df_ids7 = df_ids7[df_ids7['Avbrutt'] != 'Avbrutt']
     return df_ids7
 
-def filter_filter_phantom_etc(df_ids7, verbose=False):
+def filter_phantom_etc(df_ids7, verbose=False):
     """ 
     This function removes rows representing non-human subjects (phantoms, animals, etc.).
     """
     if verbose:
         print('Number of non-human subjects: {}'.format(sum(df_ids7['Henvisningskategori (RIS)'] == 'X Fantom/objekt/dyr/test')))
 
-    df_ids7 = df_ids7[df_ids7['Henvisningskategori (RIS)'] == 'X Fantom/objekt/dyr/test']
+    df_ids7 = df_ids7[df_ids7['Henvisningskategori (RIS)'] != 'X Fantom/objekt/dyr/test']
     return df_ids7
 
 def check_accession_format(df_ids7, verbose=False):
@@ -45,7 +45,7 @@ def check_accession_format(df_ids7, verbose=False):
     If verbose is True, the function will print the number of invalid accession numbers
     and the invalid accession numbers.
     """
-    valid_formats = r'^(NORRH|NRRH|NRAK|NIRH|NKRH|NNRH|NRRA)'
+    valid_formats = r'^(NORRH|NRRH|NRAK|NIRH|NKRH|NNRH|NRRA|NRUL)'
     patten = re.compile(valid_formats)
 
     is_valid_format = (df_ids7['Henvisnings-ID'].str.match(patten)) & (df_ids7['Henvisnings-ID'].str.len() == 16)
