@@ -16,6 +16,30 @@ def filter_NaT(df_ids7, verbose=False):
     df_ids7 = df_ids7[df_ids7['Bestilt dato og tidspunkt'].notnull()]
     return df_ids7
 
+def remove_unnecessary_columns(df_ids7, verbose=False):
+    """
+    This function removes columns that are automatically included in the export but not needed for analysis, these are:
+    Prioritet- og lesemerkeikon
+    Lagt til i demonstrasjon-ikon
+    """
+    if 'Prioritet- og lesemerkeikon' in df_ids7.columns:
+        if verbose:
+            print('Dropping unnecessary column: Prioritet- og lesemerkeikon')
+        df_ids7.drop('Prioritet- og lesemerkeikon', axis=1, inplace=True)
+
+    if 'Lagt til i demonstrasjon-ikon' in df_ids7.columns:
+        if verbose:
+            print('Dropping unnecessary column: Lagt til i demonstrasjon-ikon')
+        df_ids7.drop('Lagt til i demonstrasjon-ikon', axis=1, inplace=True)
+
+    if 'Status' in df_ids7.columns:
+        if verbose:
+            print('Dropping unnecessary column: Status')
+        df_ids7.drop('Status', axis=1, inplace=True)
+    
+    return df_ids7
+
+
 def filter_cancelled(df_ids7, verbose=False):
     """ 
     This function removes rows where the procedures have been cancelled.
