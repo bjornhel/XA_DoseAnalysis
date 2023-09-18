@@ -40,7 +40,6 @@ def remove_unnecessary_columns(df_ids7, verbose=False):
     
     return df_ids7
 
-
 def filter_cancelled(df_ids7, verbose=False):
     """ 
     This function removes rows where the procedures have been cancelled.
@@ -158,8 +157,6 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False):
 
     return df_ids7
 
-
-
 # Utility functions primarily used to check the data for abnormalities:
 def check_patents_with_multiple_bookings_on_same_time_with_different_accession(df_ids7):
     """
@@ -192,10 +189,6 @@ def check_patents_with_multiple_bookings_on_same_time_with_different_accession(d
                         print('Patient: ' + str(patient) + ' has multiple accession numbers at ' + str(booking_times.iloc[i]) + ':')
                         print(acc_no)
                         print('')
-
-
-
-
 
 def check_patents_with_multiple_bookings_on_same_day_with_different_accession(df_ids7):
     """
