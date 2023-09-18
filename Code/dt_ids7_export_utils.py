@@ -157,6 +157,41 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False):
 
     return df_ids7
 
+def export_examination_codes_to_text_file(df_ids7, lab):
+    """
+    This function exports the examination codes for a given lab to a text file.
+    The input is the dataframe with the IDS7 data and the name of the lab as a string.
+    """
+    df_lab = df_ids7[df_ids7['Rom/modalitet (RIS)'] == lab]
+    # Exit function with an error if there are no rows with the given lab:
+    if len(df_lab) == 0:
+        print('No rows with the given lab: ' + lab)
+        return
+
+    # Make an pandas series with an index of the accession numbers that store the codes:
+    codes = pd.Series(index = df_lab['Henvisnings-ID'].unique())
+    for accession_no in codes.index:
+        procedure = df_lab[df_lab['Henvisnings-ID'] == accession_no]['Beskrivelse'].unique()
+        procedure.sort()
+        # Merge all the codes into one string:
+        code = ''
+        for i in procedure:
+            code += i + ', '
+        # Remove the last comma and space:
+        code = code[:-2]
+        # Store the code in the series:
+        codes[accession_no] = code
+
+    # Make a list of unique codes:
+    unique_codes = codes.unique()
+    # Sort the list:
+    unique_codes.sort()
+    # Export the list to a text file:
+    with open(lab + '_codes.txt', 'w') as f:
+        for i in unique_codes:
+            f.write(i + '\n')
+    del i
+
 # Utility functions primarily used to check the data for abnormalities:
 def check_patents_with_multiple_bookings_on_same_time_with_different_accession(df_ids7):
     """
