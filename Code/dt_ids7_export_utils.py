@@ -4,6 +4,7 @@ The following functions are included in this module:
 """
 
 import pandas as pd
+import numpy as np
 import re
 
 def filter_NaT(df_ids7, verbose=False):
@@ -95,6 +96,65 @@ def check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=False):
     if verbose:
         print('Number of accession numbers in IDS7: {}'.format(len(df_ids7['Henvisnings-ID'].drop_duplicates())))
         print('Number of accession numbers in IDS7 not in DoseTrack: {}'.format(len(df_ids7[df_ids7['Henvisning_i_dt'] == False]['Henvisnings-ID'].drop_duplicates())))
+
+    return df_ids7
+
+def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False):
+    """
+    For a few patients having a procedure, there has been created two accession numbers in IDS7.
+    DoseTrack will only use one of these if the patient only got one procedure.
+    This function will search for procedures on the same patient on the same time with different accessionnumbers.
+    If only one of these are in dosetrack while the rest is not, the accession number will be overwritten by the accession number
+    used by dosetrack. If both or non of the accesssion numbers are in used, they remain untouched.
+    After the accession numbers have been overwritten the function check_accession_ids7_vs_dt is run from this function.
+    """
+
+    # Test if the column Henvisning_i_dt exists:
+    if 'Henvisning_i_dt' not in df_ids7.columns:
+        # If not, run the function check_accession_ids7_vs_dt:
+        if verbose:
+            print('The column Henvisning_i_dt does not exist. Running check_accession_ids7_vs_dt')
+        df_ids7 = check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=verbose)
+
+    # Go through all the patients in the IDS7 data:
+    patient_list = df_ids7['Pasient'].unique()
+    status_changed = False
+    for patient in patient_list:
+        # Go through all the individual booking times for this patient:
+        booking_times = sorted(df_ids7[df_ids7['Pasient'] == patient]['Bestilt dato og tidspunkt'].unique())
+        for time in booking_times:
+            # Get the accession number for this patient at this booking time:
+            acc_nr = df_ids7[(df_ids7['Pasient'] == patient) & (df_ids7['Bestilt dato og tidspunkt'] == time)]['Henvisnings-ID'].unique()
+            # Check if there is more than one accession number for this patient at this time:
+            if len(acc_nr) > 1:
+                # Make a pandas series with accession numbers as index and true/false as values:
+                acc_nr_in_dt = pd.Series(index=acc_nr, data = np.nan)
+                # Go through all the accession numbers for this patient at this time:
+                for acc in acc_nr:
+                    # Check if the accession number is in the DoseTrack data:
+                    acc_nr_in_dt[acc] = df_ids7[(df_ids7['Pasient'] == patient) & (df_ids7['Bestilt dato og tidspunkt'] == time) & \
+                                                (df_ids7['Henvisnings-ID'] == acc)]['Henvisning_i_dt'].values[0]
+                # Check if there are both true and false values:
+                if acc_nr_in_dt.nunique() > 1:
+                    # Warn the user that there might be ambigous data regarding this procedure if there are several true and at least one false:
+                    if len(acc_nr_in_dt[acc_nr_in_dt == True]) > 1 and len(acc_nr_in_dt[acc_nr_in_dt == False]) > 0:
+                        print('WARNING: there are two or more accessions with data in dosetrack and at least one without.')
+                        print('Please investigate patient: ' + str(patient) + ', time: ' + str(time) + ', accession numbers: ' + str(acc_nr))
+                    else:
+                        # Insert the accession number which is included in the DoseTrack data into all the rows for the same 
+                        # patient and booking with no dosetrack data:
+                        df_ids7.loc[(df_ids7['Pasient'] == patient) & \
+                                    (df_ids7['Bestilt dato og tidspunkt'] == time) & \
+                                    (df_ids7['Henvisning_i_dt'] == False) \
+                                    , 'Henvisnings-ID'] = acc_nr_in_dt[acc_nr_in_dt == True].index[0]
+                        status_changed = True
+                        print('Inserted accession number: ' + str(acc_nr_in_dt[acc_nr_in_dt == True].index[0]) + \
+                            ' for patient: ' + str(patient) + ', time: ' + str(time) + ', accession numbers: ' + str(acc_nr))
+    if status_changed:
+        # Run the function check_accession_ids7_vs_dt again to update the column Henvisning_i_dt:
+        if verbose:
+            print('The accession numbers have been changed. Running check_accession_ids7_vs_dt')
+        df_ids7 = check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=verbose)
 
     return df_ids7
 
