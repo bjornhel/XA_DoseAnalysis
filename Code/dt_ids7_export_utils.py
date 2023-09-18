@@ -4,6 +4,7 @@ The following functions are included in this module:
 """
 
 import pandas as pd
+import numpy as np
 import re
 
 def filter_NaT(df_ids7, verbose=False):
@@ -97,9 +98,18 @@ def check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=False):
 
     return df_ids7
 
-def merge_accession_no_same_procedure(df_ids7, df_dt, verbose=False)
+def merge_accession_no_same_procedure(df_ids7, df_dt, verbose=False):
+    """
+    This function merges rows with the same procedure and accession number.
+    """
+    # Check if check_accession_ids7_vs_dt has been run:
+    if 'Henvisning_i_dt' not in df_ids7.columns:
+        print('chck_accession_ids7_vs_dt has not been run, running it now.')
+        df_ids7 = check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=verbose)
+
     # Go through all the patients in the IDS7 data:
     patient_list = df_ids7['Pasient'].unique()
+    changed = False
     for patient in patient_list:
         # Go through all the individual booking times for this patient:
         booking_times = sorted(df_ids7[df_ids7['Pasient'] == patient]['Bestilt dato og tidspunkt'].unique())
@@ -118,15 +128,29 @@ def merge_accession_no_same_procedure(df_ids7, df_dt, verbose=False)
                                                 (df_ids7['Henvisnings-ID'] == acc)]['Henvisning_i_dt'].unique()
                 
                 # Check if there are both true and false values:
-                if acc_nr_in_dt.nunique() > 1:
+                if acc_nr_in_dt.eq(True).any() and acc_nr_in_dt.eq(False).any():
                     # Warn the user that there might be ambigous data regarding this procedure if there are several true and at least one false:
                     if len(acc_nr_in_dt[acc_nr_in_dt == True]) > 1 and len(acc_nr_in_dt[acc_nr_in_dt == False]) > 0:
                         print('WARNING: there are two or more accessions with data in dosetrack and at least one without.')
                         print('Please investigate patient: ' + str(patient) + ', time: ' + str(time) + ', accession numbers: ' + str(acc_nr))
                     else:
                         # Insert the accession number which is included in the DoseTrack data into all the rows for the same patient and booking with no dosetrack data:
-                        df_ids7.loc[(df_ids7['Pasient'] == patient) & (df_ids7['Bestilt dato og tidspunkt'] == time) & (df_ids7['Henvisnings-ID'] == False) , \
-                                                                        'Henvisning_i_dt'] = acc_nr_in_dt[acc_nr_in_dt == True].index[0]              
+                        df_ids7.loc[(df_ids7['Pasient'] == patient) & (df_ids7['Bestilt dato og tidspunkt'] == time) & (df_ids7['Henvisning_i_dt'] == False) , \
+                                                                        'Henvisnings-ID'] = acc_nr_in_dt[acc_nr_in_dt == True].index[0]
+                        
+                        print('Inserted accession number: ' + str(acc_nr_in_dt[acc_nr_in_dt == True].index[0]) + ' into patient: ' + str(patient) + \
+                              ', time: ' + str(time) + ', accession numbers: ' + str(acc_nr)) 
+                        
+                        changed = True
+    
+    if changed:
+        print('Some accession numbers have been changed, rerunning check_accession_ids7_vs_dt')
+        df_ids7 = check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=verbose)
+    
+    return df_ids7
+
+
+                                
 
 # Utility functions primarily used to check the data for abnormalities:
 def check_patents_with_multiple_bookings_on_same_time_with_different_accession(df_ids7):
