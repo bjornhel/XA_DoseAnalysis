@@ -69,7 +69,7 @@ def check_accession_format(df_ids7, verbose=False):
     If verbose is True, the function will print the number of invalid accession numbers
     and the invalid accession numbers.
     """
-    valid_formats = r'^(NORRH|NRRH|NRAK|NIRH|NKRH|NNRH|NRRA|NRUL)'
+    valid_formats = r'^(NORRH|NRRH|NRAK|NIRH|NKRH|NKUL|NNRH|NRRA|NRUL)'
     patten = re.compile(valid_formats)
 
     is_valid_format = (df_ids7['Henvisnings-ID'].str.match(patten)) & (df_ids7['Henvisnings-ID'].str.len() == 16)
