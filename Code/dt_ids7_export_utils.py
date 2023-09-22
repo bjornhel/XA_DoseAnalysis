@@ -179,12 +179,14 @@ def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False):
 
     return df_ids7
 
-
 def export_examination_codes_to_text_file(df_ids7, lab):
     """
     This function exports the examination codes for a given lab to a text file.
     The input is the dataframe with the IDS7 data and the name of the lab as a string.
     """
+
+    # TODO: legg til en opptelling av antall prosedyrer for hver kode, hvis mulig.
+
     df_lab = df_ids7[df_ids7['Rom/modalitet (RIS)'] == lab]
     # Exit function with an error if there are no rows with the given lab:
     if len(df_lab) == 0:
@@ -215,6 +217,11 @@ def export_examination_codes_to_text_file(df_ids7, lab):
             f.write(i + '\n')
     del i
 
+def concatenate_protocol(series):
+    """
+    This function concatenates all the protocol information into a single string.
+    """
+    return ', '.join(series.astype(str))
 
 # Utility functions primarily used to check the data for abnormalities:
 def check_patents_with_multiple_bookings_on_same_time_with_different_accession(df_ids7):
