@@ -7,21 +7,12 @@ import pandas as pd
 import numpy as np
 import re
 
-def filter_NaT(df_ids7, verbose=False):
-    """
-    This function removes row with NaT in the column 'Bestilt dato og tidspunkt'
-    """
-    if verbose:
-        print('Number of rows with NaT in the column "Bestilt dato og tidspunkt": {}'.format(sum(df_ids7['Bestilt dato og tidspunkt'].isnull())))
-
-    df_ids7 = df_ids7[df_ids7['Bestilt dato og tidspunkt'].notnull()]
-    return df_ids7
-
 def remove_unnecessary_columns(df_ids7, verbose=False):
     """
     This function removes columns that are automatically included in the export but not needed for analysis, these are:
     Prioritet- og lesemerkeikon
     Lagt til i demonstrasjon-ikon
+    Status
     """
     if 'Prioritet- og lesemerkeikon' in df_ids7.columns:
         if verbose:
@@ -38,6 +29,16 @@ def remove_unnecessary_columns(df_ids7, verbose=False):
             print('Dropping unnecessary column: Status')
         df_ids7.drop('Status', axis=1, inplace=True)
     
+    return df_ids7
+
+def filter_NaT(df_ids7, verbose=False):
+    """
+    This function removes row with NaT in the column 'Bestilt dato og tidspunkt'
+    """
+    if verbose:
+        print('Number of rows with NaT in the column "Bestilt dato og tidspunkt": {}'.format(sum(df_ids7['Bestilt dato og tidspunkt'].isnull())))
+
+    df_ids7 = df_ids7[df_ids7['Bestilt dato og tidspunkt'].notnull()]
     return df_ids7
 
 def filter_cancelled(df_ids7, verbose=False):
@@ -157,6 +158,28 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False):
 
     return df_ids7
 
+def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False):
+    """
+    This utilityfunction runs the following funcions:
+    filter_NaT
+    remove_unnecessary_columns
+    filter_cancelled
+    filter_phantom_etc
+    check_accession_format
+    check_accession_ids7_vs_dt
+    overwrite_duplicated_accession_numbers
+    """
+    df_ids7 = remove_unnecessary_columns(df_ids7, verbose=verbose)
+    df_ids7 = filter_NaT(df_ids7, verbose=verbose)
+    df_ids7 = filter_cancelled(df_ids7, verbose=verbose)
+    df_ids7 = filter_phantom_etc(df_ids7, verbose=verbose)
+    df_ids7 = check_accession_format(df_ids7, verbose=verbose)
+    df_ids7 = check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=verbose)
+    df_ids7 = overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=verbose)
+
+    return df_ids7
+
+
 def export_examination_codes_to_text_file(df_ids7, lab):
     """
     This function exports the examination codes for a given lab to a text file.
@@ -191,6 +214,7 @@ def export_examination_codes_to_text_file(df_ids7, lab):
         for i in unique_codes:
             f.write(i + '\n')
     del i
+
 
 # Utility functions primarily used to check the data for abnormalities:
 def check_patents_with_multiple_bookings_on_same_time_with_different_accession(df_ids7):

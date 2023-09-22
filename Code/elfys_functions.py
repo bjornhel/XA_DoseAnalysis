@@ -1,3 +1,11 @@
+
+
+
+
+
+
+
+"""
 # Remove unwanted categories:
 procedures_to_drop = [  'RGV Hjerte Høyre Kat.',
                         'RGA Hjertebiopsi - TX',
@@ -57,6 +65,7 @@ mapping = { 'RGA Ablasjon SVT'                  : 'RGA Cor Ablasjon SVT (int.) m
             'RGA CRT-P'                         : 'RGA Cor CRT-P (int.)',
 
             'RGA ICD1'                              : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
+
             'RGA ICD2'                              : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
             'RGA PM1'                               : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
             'RGA PM2'                               : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
@@ -69,3 +78,5 @@ data['Protocol Description'] = data['Protocol Description'].replace(mapping)
 
 # Clean up:
 del mapping
+
+"""
