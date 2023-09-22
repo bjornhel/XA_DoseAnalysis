@@ -49,13 +49,12 @@ def map_procedures(df_ids7, verbose=False):
 
     # Check to see if mapping of older procedures is needed:
     if (df_ids7['Beskrivelse'].str.contains('RGA Ablasjon').any()) or \
-        (df_ids7['Beskrivelse'].str.contains('RGA CRYO').any()) or \
-        (df_ids7['Beskrivelse'].str.contains('RGA Elfys').any()) or \
-        (df_ids7['Beskrivelse'].str.contains('RGA CRT').any()) or \
-        (df_ids7['Beskrivelse'].str.contains('RGA ICD').any()) or \
-        (df_ids7['Beskrivelse'].str.contains('RGA PM').any()) or \
-        (df_ids7['Beskrivelse'].str.contains('RGA TPM').any()):
-        
+       (df_ids7['Beskrivelse'].str.contains('RGA CRYO').any()) or \
+       (df_ids7['Beskrivelse'].str.contains('RGA Elfys').any()) or \
+       (df_ids7['Beskrivelse'].str.contains('RGA CRT').any()) or \
+       (df_ids7['Beskrivelse'].str.contains('RGA ICD').any()) or \
+       (df_ids7['Beskrivelse'].str.contains('RGA PM').any()) or \
+       (df_ids7['Beskrivelse'].str.contains('RGA TPM').any()):
         
         idf_ids7 = map_old_procedures(df_ids7, verbose=verbose)
     

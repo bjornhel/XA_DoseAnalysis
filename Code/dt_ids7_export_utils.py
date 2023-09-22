@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import re
 
+# Functions for cleaning up the ids7 dataframe:
 def remove_unnecessary_columns(df_ids7, verbose=False):
     """
     This function removes columns that are automatically included in the export but not needed for analysis, these are:
@@ -178,6 +179,24 @@ def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False):
     df_ids7 = overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=verbose)
 
     return df_ids7
+
+# Functions for cleaning up the dt dataframe:
+def check_accession_dt_vs_ids7(df_dt, df_ids7, verbose=False):
+    """
+    This function check whether the accession numbers in DoseTrack are in IDS7.
+    It will add a column to the DoseTrack dataframe called Henvisning_i_ids7 which is 
+    True if the accession number is in IDS7 and False otherwise.
+    If verbose is True, the function will print the number of accession numbers in DoseTrack
+    and the number of accession numbers in DoseTrack not in IDS7.
+    """
+    df_dt['Henvisning_i_ids7'] = df_dt['Accession Number'].isin(df_ids7['Henvisnings-ID'].values)
+    
+    if verbose:
+        print('Number of accession numbers in DoseTrack: {}'.format(len(df_dt['Accession Number'].drop_duplicates())))
+        print('Number of accession numbers in DoseTrack not in IDS7: {}'.format(len(df_dt[df_dt['Henvisning_i_ids7'] == True]['Accession Number'].drop_duplicates())))
+
+    return df_dt
+
 
 def export_examination_codes_to_text_file(df_ids7, lab):
     """
