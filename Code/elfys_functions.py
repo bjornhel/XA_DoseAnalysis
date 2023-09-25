@@ -1,4 +1,5 @@
 import pandas as pd
+import dt_ids7_export_utils as bh_utils
 
 
 def map_old_procedures(df_ids7, verbose=False):
@@ -9,7 +10,7 @@ def map_old_procedures(df_ids7, verbose=False):
     # Create a dictionary with the old procedures to be mapped:    
     mapping_old = { 'RGA Ablasjon SVT'                  : 'RGA Cor Ablasjon SVT (int.) m og u 3D',
                     
-                    'RGA Ablasjon Atrieflimmer'                 : 'RGA Cor Ablasjon Atrieflimmer (int.) m og u 3D',
+                    'RGA Ablasjon Atrieflimmer'         : 'RGA Cor Ablasjon Atrieflimmer (int.) m og u 3D',
                     
                     'RGA Ablasjon Atrieflutter'         : 'RGA Cor Ablasjon Atrieflutter (int.)',
 
@@ -24,12 +25,12 @@ def map_old_procedures(df_ids7, verbose=False):
 
                     'RGA CRT-P'                         : 'RGA Cor CRT-P (int.)',
 
-                    'RGA ICD1'                              : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
+                    'RGA ICD1'                          : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
 
-                    'RGA ICD2'                              : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-                    'RGA PM1'                               : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-                    'RGA PM2'                               : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-                    'RGA TPM'                               : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM'}
+                    'RGA ICD2'                          : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
+                    'RGA PM1'                           : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
+                    'RGA PM2'                           : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
+                    'RGA TPM'                           : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM'}
         
     df_ids7['Beskrivelse'] = df_ids7['Beskrivelse'].replace(mapping_old)
     
@@ -81,89 +82,40 @@ def map_procedures(df_ids7, verbose=False):
 
     return df_ids7
 
-"""
-# Remove unwanted categories:
-procedures_to_drop = [  'RGV Hjerte Høyre Kat.',
-                        'RGA Hjertebiopsi - TX',
-                        'RGV Cor Hø kat, måling av trykk og flow i lille kretsløp ved hje',
-                        'RGV Cor Biopsi høyre ventrikkel (int.)',
-                        'RGA Hjertebiopsi - Diagn.',
-                        'RGV Cor Høyresidig hjertekateterisering (int.)',
-                        'RGA Uspes. lok. interv.',
-                        'RGA Revisjon av ledning',
-                        'MIG_Ukjent US fremtidig',
-                        'RGA Overex. Annen intervensjon (int.)',
-                        'RGA Generatorbytte (PM)',
-                        'RGA Generatorbytte (ICD)',
-                        'RGA Cor Revisjon av elektroder (int.)',
-                        'RGA Uspes. lok.',
-                        'RGA Cor Koronarangiografi (int.)',
-                        'RG Thorax',
-                        'RGA Cor Biopsi venstre ventrikkel (int.)',
-                        'RGA Biopsi m/høyre kat.',
-                        'RGV Cor Temporær PM (int.)',
-                        'RGA Abd. interv.',
-                        'RGV Hode / Hals interv.',
-                        'RGA Cor Annen intervensjon (int.)',
-                        'RGV Annen vene Annen intervensjon (int.)',
-                        'RGA Cor Flekainid test (int.)',
-                        'RGV Overex., VE',
-                        'RGA Overex. Annen intervensjon (int.)',
-                        'RGA Cor Utskiftning av ledning ICD (int.)',
-                        'RGA Cor Reveal (int.)',
-                        'RGA Cor Revisjon av elektroder (int.)',
-                        'RGA Cor ILR (int.)']
+def filter_procedures(data, verbose=False):
+    """
+    This function removes the procedures which the department is not interested in analyzing.
+    """
 
+    # Create a list of procedures to be kept:
+    procedures_to_keep = ['RGA Cor Ablasjon SVT \(int\.\) m og u 3D',
+                        'RGA Cor Ablasjon Atrieflimmer \(int\.\) m og u 3D',
+                        'RGA Cor Ablasjon Atrieflutter \(int\.\)',
+                        'RGA Cor Ablasjon VT m 3D \(int\.\)',
+                        'RGA Cor Cryo Ablasjon Atrieflimmer \(int\.\)',
+                        'RGA Cor Elfys VT el. SVT \(int\.\)',
+                        'RGA Cor CRT-D \(int\.\)',
+                        'RGA Cor CRT-P \(int\.\)',
+                        'RGA Cor Implantasjon PM/ICD \(int\.\) ink\. 2k og 1k PM']
+   
+    # the 'keep' column will be true if any of the procedures above is in a substring of the 'Beskrivelse' column:
+    data['keep'] = data['Beskrivelse'].str.contains('|'.join(procedures_to_keep))
 
-data = data[~data['Protocol Description'].isin(procedures_to_drop)]
-"""
-"""
-# Remove all categories that have zero entries from the categorical variable:
-procedure_count = data['Protocol Description'].value_counts()
-categories_to_remove = procedure_count[procedure_count == 0].index.tolist()
-data['Protocol Description'] = data['Protocol Description'].cat.remove_categories(categories_to_remove)
+    if verbose:
+        # Print the totoal number of unique procedures:
+        print('The total number of unique procedures is %d' % len(data['Beskrivelse'].unique()))
+        print('\n')
 
-# Clean up:
-del procedures_to_drop, procedure_count, categories_to_remove
+        # Print all the procedures which will be kept:
+        print('The following %d unique procedures or procedure-combinations will be kept:' % len(data[data['keep']]['Beskrivelse'].unique()))
+        for procedure in data[data['keep']]['Beskrivelse'].unique():
+            # Print the number of procedures which will be kept:
+            print(procedure)
 
-# This section will map similar procedures into the same category:
-# Create a dictionary with the procedures to be mapped:
-mapping = { 'RGA Ablasjon SVT'                  : 'RGA Cor Ablasjon SVT (int.) m og u 3D',
-            'RGA Cor Ablasjon SVT (int.)'       : 'RGA Cor Ablasjon SVT (int.) m og u 3D',
-            'RGA Cor Ablasjon SVT m 3D (int.)'  : 'RGA Cor Ablasjon SVT (int.) m og u 3D',
-            
-            'RGA Ablasjon Atrieflimmer'                 : 'RGA Cor Ablasjon Atrieflimmer (int.) m og u 3D',
-            'RGA Cor Ablasjon Atrieflimmer (int.)'      : 'RGA Cor Ablasjon Atrieflimmer (int.) m og u 3D',
-            'RGA Cor Ablasjon Atrieflimmer med 3D (int.)' : 'RGA Cor Ablasjon Atrieflimmer (int.) m og u 3D',
-
-            'RGA Ablasjon Atrieflutter'         : 'RGA Cor Ablasjon Atrieflutter (int.)',
-
-            'RGA Ablasjon VT'                   : 'RGA Cor Ablasjon VT m 3D (int.)',
-
-            'RGA CRYO Ablasjon Atrieflimmer'    : 'RGA Cor Cryo Ablasjon Atrieflimmer (int.)',
-
-            'RGA Elfys SVT'                     : 'RGA Cor Elfys VT el. SVT (int.)',
-            'RGA Cor Elfys SVT (int.)'          : 'RGA Cor Elfys VT el. SVT (int.)',
-            'RGA Elfys VT'                      : 'RGA Cor Elfys VT el. SVT (int.)',
-            'RGA Cor Elfys VT (int.)'           : 'RGA Cor Elfys VT el. SVT (int.)',
-
-            'RGA CRT-D'                         : 'RGA Cor CRT-D (int.)',
-
-            'RGA CRT-P'                         : 'RGA Cor CRT-P (int.)',
-
-            'RGA ICD1'                              : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-
-            'RGA ICD2'                              : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-            'RGA PM1'                               : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-            'RGA PM2'                               : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-            'RGA TPM'                               : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-            'RGA Cor 2-k PM (int.)'                 : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-            'RGA Cor 1-k PM (int.)'                 : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-            'RGA Cor Implantasjon PM/ICD (int.)'    : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM'}
-
-data['Protocol Description'] = data['Protocol Description'].replace(mapping)
-
-# Clean up:
-del mapping
-
-"""
+        print('\n')
+        print('The following %d unique procedures or procedure-combinations will be dropped:' % len(data[~data['keep']]['Beskrivelse'].unique()))
+        # Print all the procedures which will be removed:
+        for procedure in data[~data['keep']]['Beskrivelse'].unique():
+            print(procedure)
+    
+    return (data[data['keep']]).drop(columns=['keep'])

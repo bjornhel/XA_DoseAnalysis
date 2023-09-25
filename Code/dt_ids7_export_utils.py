@@ -180,6 +180,48 @@ def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False):
 
     return df_ids7
 
+def concatenate_protocol(series):
+    """
+    This function concatenates all the protocol information into a single string.
+    """
+    return ', '.join(series.astype(str))
+
+# Funciton for merging IDS7 and DoseTrack dataframes:
+def merge_ids7_dt(df_ids7, df_dt, verbose=False):
+    """ 
+    This function merged the data from IDS7 and DoseTrack based on accession number.
+    In the process of preparing the merge of the IDS7 data, all the procedure descriptions for the same 
+    accession number are concatenated into one string.
+    For the DoseTrack data, the sum of the DAP, CAK and F+A Time are calculated for each accession number.
+    """
+    
+    # Prepare IDS7 data for merge:
+    df_ids7_to_merge = df_ids7[df_ids7['Henvisning_i_dt'] == True].groupby('Henvisnings-ID', as_index = False).agg({'Pasient': 'first', 
+                                                'Kjønn': 'first',
+                                                'Henvisnings-ID': 'first', 
+                                                'Beskrivelse': concatenate_protocol})
+
+    # Prepare the DoseTrack data for merge:
+    df_dt_to_merge = df_dt[df_dt['Henvisning_i_ids7'] == True].groupby('Accession Number', as_index = False).agg({'Accession Number': 'first',
+                                                'Study Date': 'first',
+                                                'Age (Years)': 'first',
+                                                'DAP Total (Gy*cm2)': 'sum',
+                                                'CAK (mGy)': 'sum',
+                                                'F+A Time (s)': 'sum',
+                                                'Modality Room': 'first'})
+    
+    # Merge the IDS7 and DoseTrack data:
+    data = pd.merge(df_ids7_to_merge, df_dt_to_merge, how='outer', left_on='Henvisnings-ID', right_on='Accession Number')
+    
+    # Drop the redundant column:
+    data.drop('Henvisnings-ID', axis=1, inplace=True)
+
+    if verbose:
+        print('The IDS7 and DoseTrack has merged data of length: {}'.format(len(data)))
+
+    return data
+
+
 # Functions for cleaning up the dt dataframe:
 def check_accession_dt_vs_ids7(df_dt, df_ids7, verbose=False):
     """
@@ -235,12 +277,6 @@ def export_examination_codes_to_text_file(df_ids7, lab):
         for i in unique_codes:
             f.write(i + '\n')
     del i
-
-def concatenate_protocol(series):
-    """
-    This function concatenates all the protocol information into a single string.
-    """
-    return ', '.join(series.astype(str))
 
 # Utility functions primarily used to check the data for abnormalities:
 def check_patents_with_multiple_bookings_on_same_time_with_different_accession(df_ids7):
