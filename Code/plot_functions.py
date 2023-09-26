@@ -17,22 +17,14 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
 
     # Create a dataframe with the data for the procedure:
     data = data[data['Beskrivelse'] == procedure]
-    print('Before sorting:')
-    bh_report.print_obs_per_lab(data[data['Beskrivelse'] == procedure])
-    print('*')
-    bh_report.print_median_dap_per_lab(data[data['Beskrivelse'] == procedure])
-    print('-----------')
     data = data.sort_values(by=['Modality Room'])
-
-    print('After sorting:')
-    bh_report.print_obs_per_lab(data[data['Beskrivelse'] == procedure])
-    print('*')
-    bh_report.print_median_dap_per_lab(data[data['Beskrivelse'] == procedure])
-    print('-----------')
+    
     # Make a boxplot:
     fig, ax = plt.subplots(figsize=(15, 10))
     sns.boxplot(x='Modality Room', y='DAP Total (Gy*cm2)', data=data, ax=ax)
-
+    print('Reporting doses for ' + procedure + ':')
+    print('\n')
+    bh_report.print_summary_per_lab(data[data['Beskrivelse'] == procedure])
     # Reduce the range of the y-axis:
     if y_max > 0:
         ax.set_ylim([0, y_max])
@@ -49,18 +41,18 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
     # Put an annotation on the axis:
     for i, xtick in enumerate(ax.get_xticklabels()):
         if list_max[i] > y_max:
-            ax.annotate('Max: ' + str(round(list_max[i], 2)) + '\n' + 'n-utenfor = ' + str(list_n_outside[i]), xy=(i, y_max), xytext=(i, y_max + 0.5), ha='center', va='bottom', fontsize=15 , arrowprops=dict(facecolor='black', shrink=0.05))
+            ax.annotate('Maks: ' + str(round(list_max[i], 2)) + '\n' + 'n-utenfor = ' + str(list_n_outside[i]), xy=(i, y_max), xytext=(i, y_max + y_max/20), ha='center', va='bottom', fontsize=15 , arrowprops=dict(facecolor='black', shrink=0.05))
 
 
     # Add a different string to each x-ticklabel:
     labels = []
     for i, xtick in enumerate(ax.get_xticklabels()):
-        n_obs = data['Modality Room'].value_counts()[i] # Get the number of observation for the current tick i.
+        n_obs = len(data[data['Modality Room'] == xtick.get_text()])
         labels.append(xtick.get_text() + '\n' +'(' + 'n = ' + str(n_obs) + ')')
     _ = ax.set_xticklabels(labels)
 
     # Add a title:
-    _ = plt.suptitle(procedure, fontsize=25, y=1.01)
+    _ = plt.suptitle(procedure, fontsize=25, y=1.011)
     # Set new label for the x-axis:
     _ = ax.set_xlabel('Lab')
     # Set new label for the y-axis:
@@ -72,4 +64,7 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
 
     # Increase the font size of the x-ticklabels:
     _ = ax.tick_params(labelsize=15)   
+    print('-'*50)
+    print('\n')
+
     return
