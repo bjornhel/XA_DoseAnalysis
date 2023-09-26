@@ -1,7 +1,7 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+import reporting_utils as bh_report
 
 # This module contains functions for performing the various common plots.
 
@@ -17,7 +17,18 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
 
     # Create a dataframe with the data for the procedure:
     data = data[data['Beskrivelse'] == procedure]
-    #data = data.sort_values(by=['Modality Room'])
+    print('Before sorting:')
+    bh_report.print_obs_per_lab(data[data['Beskrivelse'] == procedure])
+    print('*')
+    bh_report.print_median_dap_per_lab(data[data['Beskrivelse'] == procedure])
+    print('-----------')
+    data = data.sort_values(by=['Modality Room'])
+
+    print('After sorting:')
+    bh_report.print_obs_per_lab(data[data['Beskrivelse'] == procedure])
+    print('*')
+    bh_report.print_median_dap_per_lab(data[data['Beskrivelse'] == procedure])
+    print('-----------')
     # Make a boxplot:
     fig, ax = plt.subplots(figsize=(15, 10))
     sns.boxplot(x='Modality Room', y='DAP Total (Gy*cm2)', data=data, ax=ax)
