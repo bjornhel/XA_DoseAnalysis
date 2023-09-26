@@ -41,7 +41,8 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
     # Put an annotation on the axis:
     for i, xtick in enumerate(ax.get_xticklabels()):
         if list_max[i] > y_max:
-            ax.annotate('Maks: ' + str(round(list_max[i], 2)) + '\n' + 'n-utenfor = ' + str(list_n_outside[i]), xy=(i, y_max), xytext=(i, y_max + y_max/20), ha='center', va='bottom', fontsize=15 , arrowprops=dict(facecolor='black', shrink=0.05))
+            ax.annotate('Maks = ' + str(round(list_max[i], 1)) + '\n' + 'n$_{(>'+ str(y_max) + ')}$ = ' + str(list_n_outside[i]), xy=(i, y_max), \
+                        xytext=(i, y_max + y_max/20), ha='center', va='bottom', fontsize=20 , arrowprops=dict(facecolor='black', shrink=0.05))
 
 
     # Add a different string to each x-ticklabel:
@@ -52,18 +53,20 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
     _ = ax.set_xticklabels(labels)
 
     # Add a title:
-    _ = plt.suptitle(procedure, fontsize=25, y=1.011)
+    _ = plt.suptitle(procedure, fontsize=30, y=1.04)
     # Set new label for the x-axis:
     _ = ax.set_xlabel('Lab')
     # Set new label for the y-axis:
     _ = ax.set_ylabel('DAP (Gy*cm2)')
     # Increase the size of the title and labels:
-    _ = ax.title.set_size(20)
-    _ = ax.xaxis.label.set_size(20)
-    _ = ax.yaxis.label.set_size(20)
+    _ = ax.xaxis.label.set_size(30)
+    _ = ax.yaxis.label.set_size(30)
+    # Add a weak dotted grid to the plot:
+    _ = ax.grid(True, linestyle=':', linewidth=0.5)
+
 
     # Increase the font size of the x-ticklabels:
-    _ = ax.tick_params(labelsize=15)   
+    _ = ax.tick_params(labelsize=20)   
     print('-'*50)
     print('\n')
 
