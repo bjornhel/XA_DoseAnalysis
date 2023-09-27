@@ -1,5 +1,6 @@
-import pandas as pd
+
 import seaborn as sns
+import os
 import matplotlib.pyplot as plt
 import reporting_utils as bh_report
 
@@ -70,4 +71,10 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
     print('-'*50)
     print('\n')
 
+    if save:
+        if not os.path.exists('Figures'):
+            os.makedirs('Figures')
+        # if the procedure contains a forward slash, replace it with a dash:
+        procedure = procedure.replace('/', '-')
+        fig.savefig('Figures/' + procedure + '.png', bbox_inches='tight')
     return
