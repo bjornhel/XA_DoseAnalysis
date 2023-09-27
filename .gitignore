@@ -1,4 +1,5 @@
 __pycache__/
 Figures/
+Reports/
 *.code-workspace
 *.txt

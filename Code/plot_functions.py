@@ -1,6 +1,7 @@
 
 import seaborn as sns
 import os
+import glob
 import matplotlib.pyplot as plt
 import reporting_utils as bh_report
 
@@ -77,4 +78,17 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
         # if the procedure contains a forward slash, replace it with a dash:
         procedure = procedure.replace('/', '-')
         fig.savefig('Figures/' + procedure + '.png', bbox_inches='tight')
+    return
+
+# This function will delete all plots in the Figures folder.
+def delete_all_plots(delete_folder=False):
+    """
+    This function will delete all plots in the Figures folder.
+    """
+    files = glob.glob('Figures/*')
+    for f in files:
+        os.remove(f)
+    if delete_folder:
+        if os.path.exists('Figures'):
+            os.rmdir('Figures')
     return

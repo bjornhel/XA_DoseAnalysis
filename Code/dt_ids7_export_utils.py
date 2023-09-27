@@ -6,6 +6,8 @@ The following functions are included in this module:
 import pandas as pd
 import numpy as np
 import re
+import os
+import glob
 
 # Functions for cleaning up the ids7 dataframe:
 def remove_unnecessary_columns(df_ids7, verbose=False):
@@ -239,7 +241,6 @@ def check_accession_dt_vs_ids7(df_dt, df_ids7, verbose=False):
 
     return df_dt
 
-
 def export_examination_codes_to_text_file(df_ids7, lab):
     """
     This function exports the examination codes for a given lab to a text file.
@@ -272,11 +273,25 @@ def export_examination_codes_to_text_file(df_ids7, lab):
     unique_codes = codes.unique()
     # Sort the list:
     unique_codes.sort()
-    # Export the list to a text file:
-    with open(lab + '_codes.txt', 'w') as f:
-        for i in unique_codes:
-            f.write(i + '\n')
-    del i
+    # Export the list to a text file in the Reports folder:
+    if not os.path.exists('Reports'):
+            os.makedirs('Reports')
+    with open('Reports/Examination_codes_' + lab + '.txt', 'w') as f:
+        for code in unique_codes:
+            f.write(code + '\n')
+
+def delete_reports(delete_folder=False):
+    """
+    This function deletes all the reports in the Reports folder.
+    """
+    files = glob.glob('Reports/*')
+    for f in files:
+        os.remove(f)
+    if delete_folder:
+        if os.path.exists('Reports'):
+            os.rmdir('Reports')
+    return
+
 
 # Utility functions primarily used to check the data for abnormalities:
 def check_patents_with_multiple_bookings_on_same_time_with_different_accession(df_ids7):
