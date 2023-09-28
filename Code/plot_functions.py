@@ -26,6 +26,8 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
     sns.boxplot(x='Modality Room', y='DAP Total (Gy*cm2)', data=data, ax=ax)
     print('Reporting doses for ' + procedure + ':')
     print('\n')
+    bh_report.print_summary(data[data['Beskrivelse'] == procedure])
+    print('\n')
     bh_report.print_summary_per_lab(data[data['Beskrivelse'] == procedure])
     # Reduce the range of the y-axis:
     if y_max > 0:

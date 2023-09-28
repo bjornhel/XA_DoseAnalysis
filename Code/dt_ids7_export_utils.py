@@ -287,6 +287,7 @@ def delete_reports(delete_folder=False):
     files = glob.glob('Reports/*')
     for f in files:
         os.remove(f)
+        
     if delete_folder:
         if os.path.exists('Reports'):
             os.rmdir('Reports')

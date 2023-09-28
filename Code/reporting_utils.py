@@ -19,3 +19,11 @@ def print_summary_per_lab(data):
               ' - ' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].quantile(0.75), 1)) + '] (Gy*cm2), ' + \
               'Range (' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].min(), 1)) + \
               ' - ' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].max(), 1)) + ').')
+        
+def print_summary(data):
+    print('Alle: n = {:4}'.format(len(data)) + ', DAP: Median - ' + str(round(data['DAP Total (Gy*cm2)'].median(), 1)) + ',' +\
+            # 25 th percentile:
+            ' IQR [' + str(round(data['DAP Total (Gy*cm2)'].quantile(0.25), 1)) + \
+            ' - ' + str(round(data['DAP Total (Gy*cm2)'].quantile(0.75), 1)) + '] (Gy*cm2), ' + \
+            'Range (' + str(round(data['DAP Total (Gy*cm2)'].min(), 1)) + \
+            ' - ' + str(round(data['DAP Total (Gy*cm2)'].max(), 1)) + ').')
