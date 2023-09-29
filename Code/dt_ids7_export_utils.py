@@ -179,6 +179,7 @@ def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False):
     df_ids7 = check_accession_format(df_ids7, verbose=verbose)
     df_ids7 = check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=verbose)
     df_ids7 = overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=verbose)
+    df_dt   = check_accession_dt_vs_ids7(df_dt, df_ids7, verbose=verbose)
 
     return df_ids7
 
@@ -198,10 +199,15 @@ def merge_ids7_dt(df_ids7, df_dt, verbose=False):
     """
     
     # Prepare IDS7 data for merge:
-    df_ids7_to_merge = df_ids7[df_ids7['Henvisning_i_dt'] == True].groupby('Henvisnings-ID', as_index = False).agg({'Pasient': 'first', 
-                                                'Kjønn': 'first',
-                                                'Henvisnings-ID': 'first', 
-                                                'Beskrivelse': concatenate_protocol})
+    agg_dict = {'Pasient': 'first', 
+                'Henvisnings-ID': 'first', 
+                'Beskrivelse': concatenate_protocol}
+    
+    # Include Kjønn if it exists in the dataset:
+    if 'Kjønn' in df_ids7.columns:
+        agg_dict['Kjønn'] = 'first'
+    
+    df_ids7_to_merge = df_ids7[df_ids7['Henvisning_i_dt'] == True].groupby('Henvisnings-ID', as_index = False).agg(agg_dict)
 
     # Prepare the DoseTrack data for merge:
     df_dt_to_merge = df_dt[df_dt['Henvisning_i_ids7'] == True].groupby('Accession Number', as_index = False).agg({'Accession Number': 'first',
@@ -237,7 +243,7 @@ def check_accession_dt_vs_ids7(df_dt, df_ids7, verbose=False):
     
     if verbose:
         print('Number of accession numbers in DoseTrack: {}'.format(len(df_dt['Accession Number'].drop_duplicates())))
-        print('Number of accession numbers in DoseTrack not in IDS7: {}'.format(len(df_dt[df_dt['Henvisning_i_ids7'] == True]['Accession Number'].drop_duplicates())))
+        print('Number of accession numbers in DoseTrack not in IDS7: {}'.format(len(df_dt[df_dt['Henvisning_i_ids7'] == False]['Accession Number'].drop_duplicates())))
 
     return df_dt
 
