@@ -202,7 +202,7 @@ def filter_NaT(df_ids7, verbose=False):
     This function removes row with NaT in the column 'Bestilt dato og tidspunkt'
     """
     # Check whether the column 'Bestilt dato og tidspunkt' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
         print('Without this column, we cannot remove rows with NaT in the column "Bestilt dato og tidspunkt".')
         print('\n')
         return df_ids7
@@ -218,7 +218,7 @@ def filter_cancelled(df_ids7, verbose=False):
     This function removes rows where the procedures have been cancelled.
     """
     # Check whether the column 'Avbrutt' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Avbrutt'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Avbrutt'):
         print('Without this column, we cannot remove cancelled procedures.')
         print('\n')
         return df_ids7
@@ -235,7 +235,7 @@ def filter_phantom_etc(df_ids7, verbose=False):
     """
 
     # Check whether the column 'Henvisningskategori (RIS)' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Henvisningskategori (RIS)'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Henvisningskategori (RIS)'):
         print('Without this column, we cannot remove non-human subjects, such as phantoms, animals or other test acquisitions.')
         print('This could potentially lead to reduced data quality.')
         print('\n')
@@ -259,7 +259,7 @@ def check_accession_format(df_ids7, verbose=False):
     """
     
     # Check whether the column 'Henvisnings-ID' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
         print('Without this column, we cannot check the accession number format, or merge IDS7 with DoseTrack data.')
         print('\n')
         return df_ids7
@@ -287,12 +287,12 @@ def check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=False):
     """
 
     # Check whether the column 'Henvisnings-ID' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
         print('Without this column, it is impossible to merge the IDS7 with the DoseTrack data.')
         print('\n')
         return df_ids7
     
-    if _check_for_column(df_dt, 'DoseTrack', 'Accession Number'):
+    if not _check_for_column(df_dt, 'DoseTrack', 'Accession Number'):
         print('Without this column, it is impossible to merge the DoseTrack with the IDS7 data.')
         print('\n')
         return df_ids7
@@ -315,12 +315,12 @@ def check_accession_dt_vs_ids7(df_dt, df_ids7, verbose=False):
     """
     
     # Check whether the column 'Henvisnings-ID' exists:
-    if _check_for_column(df_dt, 'DoseTrack', 'Accession Number'):
+    if not _check_for_column(df_dt, 'DoseTrack', 'Accession Number'):
         print('Without this column, it is impossible to merge the DoseTrack with the IDS7 data.')
         print('\n')
         return df_ids7
     
-    if _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
         print('Without this column, it is impossible to merge the IDS7 with the DoseTrack data.')
         print('\n')
         return df_ids7
@@ -346,19 +346,19 @@ def check_patents_with_multiple_bookings_on_same_time_with_different_accession(d
     """
 
     # Check whether the column 'Pasient' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Pasient'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Pasient'):
         print('Without this column, we cannot keep track of which procedures are on the same patient.')
         _print_pasient_column_tutorial()
         return
     
     # Check whether the column 'Bestilt dato og tidspunkt' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
         print('Without this column, we cannot keep track of which procedures are on the same time.')
         print('\n')
         return
     
     # Check whether the column 'Henvisnings-ID' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
         print('Without this column, we cannot keep track of bookings.')
         print('\n')
         return
@@ -395,19 +395,19 @@ def check_patents_with_multiple_bookings_on_same_day_with_different_accession(df
     """
 
     # Check whether the column 'Pasient' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Pasient'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Pasient'):
         print('Without this column, we cannot keep track of which procedures are on the same patient.')
         _print_pasient_column_tutorial()
         return 
     
     # Check whether the column 'Bestilt dato og tidspunkt' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
         print('Without this column, we cannot keep track of which procedures are on the same day.')
         print('\n')
         return 
     
     # Check whether the column 'Henvisnings-ID' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
         print('Without this column, we cannot keep track of bookings.')
         print('\n')
         return 
@@ -444,19 +444,19 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False):
     """
 
         # Check whether the column 'Pasient' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Pasient'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Pasient'):
         print('Without this column, we cannot keep track of which procedures are on the same patient.')
         _print_pasient_column_tutorial()
         return df_ids7
     
     # Check whether the column 'Bestilt dato og tidspunkt' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
         print('Without this column, we cannot keep track of which procedures are on the same time.')
         print('\n')
         return df_ids7
     
     # Check whether the column 'Henvisnings-ID' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
         print('Without this column, we cannot keep track of bookings.')
         print('\n')
         return df_ids7
@@ -521,19 +521,19 @@ def merge_ids7_dt(df_ids7, df_dt, verbose=False):
     """
     
     # Check whether the column 'Henvisnings-ID' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
         print('Without this column, we cannot merge the IDS7 into the DoseTrack data.')
         print('\n')
         return False
     
     # Check whether the column 'Beskrivelse' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Beskrivelse'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Beskrivelse'):
         print('Without this column, we do not know whick procedure has been performed.')
         print('\n')
         return False
     
     # Check whether the column 'Accession Number' exists:
-    if _check_for_column(df_dt, 'DoseTrack', 'Accession Number'):
+    if not _check_for_column(df_dt, 'DoseTrack', 'Accession Number'):
         print('Without this column, we do not know whick procedure has been performed.')
         print('\n')
         return False
@@ -615,19 +615,19 @@ def export_examination_codes_to_text_file(df_ids7, lab):
     # TODO: legg til en opptelling av antall prosedyrer for hver kode, hvis mulig.
     
     # Check whether the column 'Henvisnings-ID' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
         print('Without this column, we cannot aggregate procedures per accession.')
         print('\n')
         return
     
     # Check whether the column 'Rom/modalitet (RIS)' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Rom/modalitet (RIS)'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Rom/modalitet (RIS)'):
         print('Without this column, we cannot list procedures per laboratory.')
         print('\n')
         return
     
     # Check whether the column 'Beskrivelse' exists:
-    if _check_for_column(df_ids7, 'IDS7', 'Beskrivelse'):
+    if not _check_for_column(df_ids7, 'IDS7', 'Beskrivelse'):
         print('Without this column, we cannot make a list of procedures.')
         print('\n')
         return
