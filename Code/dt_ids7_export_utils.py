@@ -1,6 +1,112 @@
 """
-This module contains functions for working with exports from DoseTrack and IDS7. 
+This module contains functions for working with exports from IDS7 and DoseTrack.
+
+-------------------------------- IDS7 Excel Data: --------------------------------
+These functions reqire an export of the IDS7 worklist data with the column titles in the first row.
+The following columns are required:
+Henvisnings-ID
+Beskrivelse
+
+The following columns are recommended:
+Bestilt dato og tidspunkt
+Avbrutt
+Henvisningskategori (RIS)
+
+The following columns are optional:
+Kjønn
+Pasient:    This is required for the functions aimed at detecting and correcting errors in the datasets. 
+            E.G. multiple accessions on the same patient.
+-------------------------------------------------------------------------------------
+
+-------------------------------- DoseTrack Excel Data: --------------------------------
+These functions require an export of the DoseTrack data with the column titles in the first row.
+It is usually a good idea right after the excel export to filter the excel file by using only the rows with ordinal = 1.
+This will greatly reduce the size of the excel file while still maintaining the procedure level data.
+For Acquisition level data, another python module should be created.
+
+The following columns are required in the DoseTrack data:
+Accession Number
+-------------------------------------------------------------------------------------
+
 The following functions are included in this module:
+
+-------------------------------- Filtering the data: --------------------------------
+remove_unnecessary_columns: Which removes the a few unnessecary columns from the IDS7 dataframe:
+                            Prioritet- og lesemerkeikon, Lagt til i demonstrasjon-ikon og Status.
+
+filter_NaT:                 Removes rows with NaT in the column 'Bestilt dato og tidspunkt'.
+
+filter_cancelled:           Removes rows where the procedures have been cancelled: 'Avbrutt' == 'Avbrutt'.
+
+filter_phantom_etc:         Removes rows representing non-human subjects: 'Henvisningskategori (RIS)' == 'X Fantom/objekt/dyr/test'.
+-------------------------------------------------------------------------------------
+
+-------------------------------- Checking the data: --------------------------------
+check_accession_format:     Checks if the accession number has a correct start and length.
+                            The currently allowed accession numbers are:
+                            (NORRH|NRRH|NRAK|NIRH|NKRH|NKUL|NNRH|NRRA|NRUL)
+
+check_accession_ids7_vs_dt: Checks whether the accession numbers in IDS7 are in DoseTrack.
+                            It will add a column to the ids7 dataframe called Henvisning_i_dt which is true or false, correspondigly.
+
+check_accession_dt_vs_ids7: Checks whether the accession numbers in DoseTrack are in IDS7.
+                            It will add a column to the DoseTrack dataframe called Henvisning_i_ids7 which is true or false, correspondigly.
+-------------------------------------------------------------------------------------
+
+--------------- Attempt to detect and correct errrors in the datasets: --------------
+check_patents_with_multiple_bookings_on_same_time_with_different_accession: 
+                            
+                            This function is used to report whether there are patients with multiple bookings on the
+                            same time with different accession numbers. This can be used to explore the extent of possibly duplicates.
+
+check_patents_with_multiple_bookings_on_same_day_with_different_accession:
+
+                            This function is used to report whether there are patients with multiple bookings on the
+                            same day (but not on the same time). This can be used to explore the extent of possibly duplicates with 
+                            slightly different booking times.
+
+
+overwrite_duplicated_accession_numbers:     For a few patients having a procedure, there has been created two accession numbers in IDS7.
+                                            This can for instance be if the patient has both a Liver and a Speen procedure, and the
+                                            user has erroneously created two accession numbers for the same patient.
+                                            
+                                            This function will check if there are two accession numbers for the same patient at the same time.
+                                            If only one of these are in dosetrack while the rest is not, 
+                                            the accession number will be overwritten by the accession number used by dosetrack.
+
+run_all_cleanup_filters_and_checks:         This function runs all the functions in this module in the correct order for conveniance.
+-------------------------------------------------------------------------------------
+
+--------- Funciton for merging IDS7 and DoseTrack dataframes: ----------
+merge_ids7_dt:              This function merged the data from IDS7 and DoseTrack based on accession number.
+                            Is needs to have the columns 'Accession Number' and 'Henvisnings-ID' in the DoseTrack and IDS7 dataframes, respectively.
+                            It also needs to have the column 'Beskrivelse' in the IDS7 dataframe.
+                            In this function there is a lost of optional columns for both dataframes to be included in the merged dataframe.
+                            The users should add parameters to the optional lists if they would like them added to the merged dataframe.
+
+--------------- Funciton for exporting data: ----------
+export_examination_codes_to_text_file:      This function generates a txt file with one line for each combination of aggregated
+                                            examination descriptions in a folder called Reports.
+                                            These lists can be printed and shown to the department to promote discussion on which
+                                            procedures are important, and which should not be reported on.
+                        
+delete_reports:                             A Utility function for easy deleting of all the reports in the report folder.
+                                            If True is passed the Reports folder is also deleted.
+-------------------------------------------------------------------------------------
+
+# Utility functions:
+_concatenate_protocol(series):
+    This function concatenates all the protocol information into a single string, for the merged dataframe.
+
+_check_for_column(data, source, column_name):
+    This function checks if a column is in the dataframe and outputs a warning if it is not present.
+
+_print_pasient_column_tutorial():
+    This function prints a tutorial for how to create the Pasient column in the IDS7 data using excel.
+
+_add_optional_columns(data, agg_dict, agg_dict_optional, source):
+    This function adds the optional columns to the aggregation dictionary, if the column exists in the dataframe.
+-------------------------------------------------------------------------------------
 """
 
 import pandas as pd
@@ -9,7 +115,59 @@ import re
 import os
 import glob
 
-# Functions for cleaning up the ids7 dataframe:
+# Utility functions:
+def _concatenate_protocol(series):
+    """
+    This function concatenates all the protocol information into a single string.
+    """
+    return ', '.join(series.astype(str))
+
+def _check_for_column(data, source, column_name):
+    """
+    This function checks if a column is in the dataframe.
+    If the column is not in the dataframe, the function will print a warning.
+    """
+    if column_name not in data.columns:
+        print('WARNING: The column "' + column_name + '" does not exist in the "' + source + '" dataframe.')
+        return False
+    else:
+        return True
+
+def _print_pasient_column_tutorial():
+    """
+    This function prints a tutorial for how to create the Pasient column in the IDS7 data using excel.
+    """
+    print('Note that the "Pasient column is not a column in IDS7, but must be created manually for anonymity reasons.')
+    print('This can be done in excel after export to a safe location using the following method:')
+    print("Copy the personal ID's from the column Fødelsnummer to a new column.")
+    print('Then mark the new column and click the data fan -> "Fjern Duplikater"')
+    print('Next to this column write for instance: "PAS0001"') 
+    print('Then doubleclick the small square in the bottom right corner of the cell to autofill.')
+    print('This will create a unique identifier for each patient.')
+    print('Make a new blank column next to the Fødselsnummer column, and fill it with the new anonymized patient ID.')
+    print('Use the =FINN.RAD() function in excel. First argument is the Fødselsnr')
+    print('The second argument is the matrix of the unique fødselsnr and the anonymized patient ID (remember $-signs)')
+    print('The third argument is the column number of the anonymized patient ID in the matrix: 2')
+    print('The fourth argument is USANN')
+    print('Finally, copy the annonymized column into a new column named "Pasient" and remember to paste as numbers.')
+    print('Make sure to delete the column "Fødselsnummer" and the key-matrix of the unique Fødselsnummer and the anonymized patient ID.')
+    print('Then save the file.')
+
+def _add_optional_columns(data, agg_dict, agg_dict_optional, source):
+    """
+    This function adds the optional columns to the aggregation dictionary, if the column exists in the dataframe.
+    """
+    for column_name in agg_dict_optional.keys():
+        if column_name in data.columns:
+            agg_dict[column_name] = agg_dict_optional[column_name]
+        else:
+            print('WARNING: The column "' + column_name + '" does not exist in the "' + source + '" dataframe.')
+            print('This column will not be included in the merged data.')
+    return agg_dict
+
+
+
+# Functions for filtering the IDS7 dataframe:
 def remove_unnecessary_columns(df_ids7, verbose=False):
     """
     This function removes columns that are automatically included in the export but not needed for analysis, these are:
@@ -38,6 +196,11 @@ def filter_NaT(df_ids7, verbose=False):
     """
     This function removes row with NaT in the column 'Bestilt dato og tidspunkt'
     """
+    # Check whether the column 'Bestilt dato og tidspunkt' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
+        print('Without this column, we cannot remove rows with NaT in the column "Bestilt dato og tidspunkt".')
+        return df_ids7
+    
     if verbose:
         print('Number of rows with NaT in the column "Bestilt dato og tidspunkt": {}'.format(sum(df_ids7['Bestilt dato og tidspunkt'].isnull())))
 
@@ -48,6 +211,11 @@ def filter_cancelled(df_ids7, verbose=False):
     """ 
     This function removes rows where the procedures have been cancelled.
     """
+    # Check whether the column 'Avbrutt' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Avbrutt'):
+        print('Without this column, we cannot remove cancelled procedures.')
+        return df_ids7
+
     if verbose:
         print('Number of cancelled procedures: {}'.format(sum(df_ids7['Avbrutt'] == 'Avbrutt')))
 
@@ -58,21 +226,35 @@ def filter_phantom_etc(df_ids7, verbose=False):
     """ 
     This function removes rows representing non-human subjects (phantoms, animals, etc.).
     """
+
+    # Check whether the column 'Henvisningskategori (RIS)' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Henvisningskategori (RIS)'):
+        print('Without this column, we cannot remove non-human subjects, such as phantoms, animals or other test acquisitions.')
+        print('This could potentially lead to reduced data quality.')
+        return df_ids7
+    
     if verbose:
         print('Number of non-human subjects: {}'.format(sum(df_ids7['Henvisningskategori (RIS)'] == 'X Fantom/objekt/dyr/test')))
 
     df_ids7 = df_ids7[df_ids7['Henvisningskategori (RIS)'] != 'X Fantom/objekt/dyr/test']
     return df_ids7
 
+# Functions for checking the IDS7 and DoseTrack dataframes:
 def check_accession_format(df_ids7, verbose=False):
     """
     This function checks if the accession number has a correct start and length.
     The currently allowed accession numbers are:
-    (NORRH|NRRH|NRAK|NIRH|NKRH|NNRH|NRRA)
+    (NORRH|NRRH|NRAK|NIRH|NKRH|NKUL|NNRH|NRRA|NRUL)
     Additionally the length of the accession number must be 16 characters.
     If verbose is True, the function will print the number of invalid accession numbers
     and the invalid accession numbers.
     """
+    
+    # Check whether the column 'Henvisnings-ID' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+        print('Without this column, we cannot check the accession number format, or merge IDS7 with DoseTrack data.')
+        return df_ids7
+    
     valid_formats = r'^(NORRH|NRRH|NRAK|NIRH|NKRH|NKUL|NNRH|NRRA|NRUL)'
     patten = re.compile(valid_formats)
 
@@ -94,6 +276,16 @@ def check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=False):
     If verbose is True, the function will print the number of accession numbers in IDS7
     and the number of accession numbers in IDS7 not in DoseTrack.
     """
+
+    # Check whether the column 'Henvisnings-ID' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+        print('Without this column, it is impossible to merge the IDS7 with the DoseTrack data.')
+        return df_ids7
+    
+    if ~_check_for_column(df_dt, 'DoseTrack', 'Accession Number'):
+        print('Without this column, it is impossible to merge the DoseTrack with the IDS7 data.')
+        return df_ids7
+    
     df_ids7['Henvisning_i_dt'] = df_ids7['Henvisnings-ID'].isin(df_dt['Accession Number'].values)
     
     if verbose:
@@ -101,6 +293,128 @@ def check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=False):
         print('Number of accession numbers in IDS7 not in DoseTrack: {}'.format(len(df_ids7[df_ids7['Henvisning_i_dt'] == False]['Henvisnings-ID'].drop_duplicates())))
 
     return df_ids7
+
+def check_accession_dt_vs_ids7(df_dt, df_ids7, verbose=False):
+    """
+    This function check whether the accession numbers in DoseTrack are in IDS7.
+    It will add a column to the DoseTrack dataframe called Henvisning_i_ids7 which is 
+    True if the accession number is in IDS7 and False otherwise.
+    If verbose is True, the function will print the number of accession numbers in DoseTrack
+    and the number of accession numbers in DoseTrack not in IDS7.
+    """
+    
+    # Check whether the column 'Henvisnings-ID' exists:
+    if ~_check_for_column(df_dt, 'DoseTrack', 'Accession Number'):
+        print('Without this column, it is impossible to merge the DoseTrack with the IDS7 data.')
+        return df_ids7
+    
+    if ~_check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+        print('Without this column, it is impossible to merge the IDS7 with the DoseTrack data.')
+        return df_ids7
+    
+    df_dt['Henvisning_i_ids7'] = df_dt['Accession Number'].isin(df_ids7['Henvisnings-ID'].values)
+    
+    if verbose:
+        print('Number of accession numbers in DoseTrack: {}'.format(len(df_dt['Accession Number'].drop_duplicates())))
+        print('Number of accession numbers in DoseTrack not in IDS7: {}'.format(len(df_dt[df_dt['Henvisning_i_ids7'] == False]['Accession Number'].drop_duplicates())))
+
+    return df_dt
+
+# Functions for attempting to detect and correct errrors in the datasets:
+def check_patents_with_multiple_bookings_on_same_time_with_different_accession(df_ids7):
+    """
+    This function is used to report whether there are patients with multiple bookings on the
+    same time with different accession numbers. This is useful in order to check whether there is a large 
+    number of patients with multiple rows of data that must be merged.
+    A previous run on over 4000 lines of PACS data revealed 20 cases of different accession no on the same time.
+    Many of these were cancelled procedusres, and should be removed in data filtration.
+    Others were infact the same procedure. These shoudl have their accession number changed to the one
+    reported in the dosetrack data.
+    """
+
+    # Check whether the column 'Pasient' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Pasient'):
+        print('Without this column, we cannot keep track of which procedures are on the same patient.')
+        _print_pasient_column_tutorial()
+        return
+    
+    # Check whether the column 'Bestilt dato og tidspunkt' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
+        print('Without this column, we cannot keep track of which procedures are on the same time.')
+        return
+    
+    # Check whether the column 'Henvisnings-ID' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+        print('Without this column, we cannot keep track of bookings.')
+        return
+    
+    # Make a list of all patients with multiple bookings on the same day with different accession numbers:
+    patient_list = df_ids7['Pasient'].drop_duplicates()
+    for patient in patient_list:
+        # Get the booking times for this patient:
+        booking_times = df_ids7[df_ids7['Pasient'] == patient]['Bestilt dato og tidspunkt']
+        # Sort the booking times:
+        booking_times = booking_times.sort_values()
+        # if there is more than one booking:
+        if len(booking_times) > 1:
+            # loop through all bookings:
+            for i in range(len(booking_times)-1):
+                # Check if the booking times are on the same day but different time with different accesstion numbers:
+                if (booking_times.iloc[i] == booking_times.iloc[i+1]):
+                    # Get the accession numbers:
+                    acc_no = df_ids7[(df_ids7['Pasient'] == patient) & (df_ids7['Bestilt dato og tidspunkt'] == booking_times.iloc[i])]['Henvisnings-ID'].drop_duplicates()
+                    # Check if there are multiple accession numbers:
+                    if len(acc_no) > 1:
+                        print('Patient: ' + str(patient) + ' has multiple accession numbers at ' + str(booking_times.iloc[i]) + ':')
+                        print(acc_no)
+                        print('')
+
+def check_patents_with_multiple_bookings_on_same_day_with_different_accession(df_ids7):
+    """
+    This function is used to report whether there are patients with multiple bookings on the
+    same day (not on the same time, as they are included in the data curation) with
+    different accession numbers. This is useful in order to check whether there is a large 
+    number of patients with multiple rows of data that must be merged.
+    On an earlier run with 4000 lines from the PACS only two cases was found.
+    Both cases included cancelled procedures.
+    """
+
+    # Check whether the column 'Pasient' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Pasient'):
+        print('Without this column, we cannot keep track of which procedures are on the same patient.')
+        _print_pasient_column_tutorial()
+        return 
+    
+    # Check whether the column 'Bestilt dato og tidspunkt' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
+        print('Without this column, we cannot keep track of which procedures are on the same day.')
+        return 
+    
+    # Check whether the column 'Henvisnings-ID' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+        print('Without this column, we cannot keep track of bookings.')
+        return 
+
+    # Make a list of all patients with multiple bookings on the same day with different accession numbers:
+    patient_list = df_ids7['Pasient'].drop_duplicates()
+    for patient in patient_list:
+        # Get the booking times for this patient:
+        booking_times = df_ids7[df_ids7['Pasient'] == patient]['Bestilt dato og tidspunkt']
+        # Sort the booking times:
+        booking_times = booking_times.sort_values()
+        # if there is more than one booking:
+        if len(booking_times) > 1:
+            # loop through all bookings:
+            for i in range(len(booking_times)-1):
+                # Check if the booking times are on the same day but different time with different accesstion numbers:
+                if (booking_times.iloc[i].date() == booking_times.iloc[i+1].date()) & (booking_times.iloc[i].time() != booking_times.iloc[i+1].time()):
+                    # Get the accession numbers:
+                    acc_no = df_ids7[(df_ids7['Pasient'] == patient) & (df_ids7['Bestilt dato og tidspunkt'] == booking_times.iloc[i])]['Henvisnings-ID'].drop_duplicates()
+                    # Check if there are multiple accession numbers:
+                    if len(acc_no) > 1:
+                        print('Patient: ' + str(patient) + ' has multiple accession numbers at ' + str(booking_times.iloc[i].date()) + ':')
+                        print(acc_no)
+                        print('')
 
 def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False):
     """
@@ -111,6 +425,23 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False):
     used by dosetrack. If both or non of the accesssion numbers are in used, they remain untouched.
     After the accession numbers have been overwritten the function check_accession_ids7_vs_dt is run from this function.
     """
+
+        # Check whether the column 'Pasient' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Pasient'):
+        print('Without this column, we cannot keep track of which procedures are on the same patient.')
+        _print_pasient_column_tutorial()
+        return df_ids7
+    
+    # Check whether the column 'Bestilt dato og tidspunkt' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Bestilt dato og tidspunkt'):
+        print('Without this column, we cannot keep track of which procedures are on the same time.')
+        return df_ids7
+    
+    # Check whether the column 'Henvisnings-ID' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+        print('Without this column, we cannot keep track of bookings.')
+        return df_ids7
+
 
     # Test if the column Henvisning_i_dt exists:
     if 'Henvisning_i_dt' not in df_ids7.columns:
@@ -161,6 +492,74 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False):
 
     return df_ids7
 
+# Funciton for merging IDS7 and DoseTrack dataframes:
+def merge_ids7_dt(df_ids7, df_dt, verbose=False):
+    """ 
+    This function merged the data from IDS7 and DoseTrack based on accession number.
+    In the process of preparing the merge of the IDS7 data, all the procedure descriptions for the same 
+    accession number are concatenated into one string.
+    For the DoseTrack data, the sum of the DAP, CAK and F+A Time are calculated for each accession number.
+    """
+    
+    # Check whether the column 'Henvisnings-ID' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+        print('Without this column, we cannot merge the IDS7 into the DoseTrack data.')
+        return False
+    
+    # Check whether the column 'Beskrivelse' exists:
+    if ~_check_for_column(df_ids7, 'IDS7', 'Beskrivelse'):
+        print('Without this column, we do not know whick procedure has been performed.')
+        return False
+    
+    # Check whether the column 'Accession Number' exists:
+    if ~_check_for_column(df_dt, 'DoseTrack', 'Accession Number'):
+        print('Without this column, we do not know whick procedure has been performed.')
+        return False
+
+    # Prepare the manditory IDS7 data for merge:
+    agg_dict_ids7 = {'Henvisnings-ID': 'first', 
+                     'Beskrivelse': _concatenate_protocol}
+    
+    # Herer users can list all optional columns that should be included in the merge. If these do not exist in the data they are ignored.
+    # prepare the optional IDS7 data for merge:
+    agg_dict_ids7_optional = {'Pasient': 'first',
+                              'Kjønn': 'first'}
+    
+    # Insert the optional IDS7 data into the aggregation dictionary if the column exists:
+    agg_dict_ids7 = _add_optional_columns(df_ids7, agg_dict_ids7, agg_dict_ids7_optional, 'IDS7')
+
+    # Prepare the manditory DoseTrack data for merge:
+    agg_dict_dt = {'Accession Number': 'first'}
+    
+    # Herer users can list all optional columns that should be included in the merge. If these do not exist in the data they are ignored.
+    # prepare the optional DoseTrack data for merge:
+    agg_dict_dt_optional = {'Study Date': 'first',
+                            'Age (Years)': 'first',
+                            'DAP Total (Gy*cm2)': 'sum',
+                            'CAK (mGy)': 'sum',
+                            'F+A Time (s)': 'sum',
+                            'Modality Room': 'first'}
+    
+    agg_dict_dt = _add_optional_columns(df_dt, agg_dict_dt, agg_dict_dt_optional, 'DoseTrack')
+
+    
+    df_ids7_to_merge = df_ids7[df_ids7['Henvisning_i_dt'] == True].groupby('Henvisnings-ID', as_index = False).agg(agg_dict_ids7)
+
+    # Prepare the DoseTrack data for merge:
+    df_dt_to_merge = df_dt[df_dt['Henvisning_i_ids7'] == True].groupby('Accession Number', as_index = False).agg(agg_dict_dt)
+    
+    # Merge the IDS7 and DoseTrack data:
+    data = pd.merge(df_ids7_to_merge, df_dt_to_merge, how='outer', left_on='Henvisnings-ID', right_on='Accession Number')
+    
+    # Drop the redundant column:
+    data.drop('Henvisnings-ID', axis=1, inplace=True)
+
+    if verbose:
+        print('The IDS7 and DoseTrack has merged data of length: {}'.format(len(data)))
+
+    return data
+
+# Utility function to run all filters and checks:
 def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False):
     """
     This utilityfunction runs the following funcions:
@@ -183,70 +582,8 @@ def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False):
 
     return df_ids7
 
-def concatenate_protocol(series):
-    """
-    This function concatenates all the protocol information into a single string.
-    """
-    return ', '.join(series.astype(str))
 
-# Funciton for merging IDS7 and DoseTrack dataframes:
-def merge_ids7_dt(df_ids7, df_dt, verbose=False):
-    """ 
-    This function merged the data from IDS7 and DoseTrack based on accession number.
-    In the process of preparing the merge of the IDS7 data, all the procedure descriptions for the same 
-    accession number are concatenated into one string.
-    For the DoseTrack data, the sum of the DAP, CAK and F+A Time are calculated for each accession number.
-    """
-    
-    # Prepare IDS7 data for merge:
-    agg_dict = {'Pasient': 'first', 
-                'Henvisnings-ID': 'first', 
-                'Beskrivelse': concatenate_protocol}
-    
-    # Include Kjønn if it exists in the dataset:
-    if 'Kjønn' in df_ids7.columns:
-        agg_dict['Kjønn'] = 'first'
-    
-    df_ids7_to_merge = df_ids7[df_ids7['Henvisning_i_dt'] == True].groupby('Henvisnings-ID', as_index = False).agg(agg_dict)
-
-    # Prepare the DoseTrack data for merge:
-    df_dt_to_merge = df_dt[df_dt['Henvisning_i_ids7'] == True].groupby('Accession Number', as_index = False).agg({'Accession Number': 'first',
-                                                'Study Date': 'first',
-                                                'Age (Years)': 'first',
-                                                'DAP Total (Gy*cm2)': 'sum',
-                                                'CAK (mGy)': 'sum',
-                                                'F+A Time (s)': 'sum',
-                                                'Modality Room': 'first'})
-    
-    # Merge the IDS7 and DoseTrack data:
-    data = pd.merge(df_ids7_to_merge, df_dt_to_merge, how='outer', left_on='Henvisnings-ID', right_on='Accession Number')
-    
-    # Drop the redundant column:
-    data.drop('Henvisnings-ID', axis=1, inplace=True)
-
-    if verbose:
-        print('The IDS7 and DoseTrack has merged data of length: {}'.format(len(data)))
-
-    return data
-
-
-# Functions for cleaning up the dt dataframe:
-def check_accession_dt_vs_ids7(df_dt, df_ids7, verbose=False):
-    """
-    This function check whether the accession numbers in DoseTrack are in IDS7.
-    It will add a column to the DoseTrack dataframe called Henvisning_i_ids7 which is 
-    True if the accession number is in IDS7 and False otherwise.
-    If verbose is True, the function will print the number of accession numbers in DoseTrack
-    and the number of accession numbers in DoseTrack not in IDS7.
-    """
-    df_dt['Henvisning_i_ids7'] = df_dt['Accession Number'].isin(df_ids7['Henvisnings-ID'].values)
-    
-    if verbose:
-        print('Number of accession numbers in DoseTrack: {}'.format(len(df_dt['Accession Number'].drop_duplicates())))
-        print('Number of accession numbers in DoseTrack not in IDS7: {}'.format(len(df_dt[df_dt['Henvisning_i_ids7'] == False]['Accession Number'].drop_duplicates())))
-
-    return df_dt
-
+# Functions for exporting the data:
 def export_examination_codes_to_text_file(df_ids7, lab):
     """
     This function exports the examination codes for a given lab to a text file.
@@ -298,68 +635,3 @@ def delete_reports(delete_folder=False):
         if os.path.exists('Reports'):
             os.rmdir('Reports')
     return
-
-
-# Utility functions primarily used to check the data for abnormalities:
-def check_patents_with_multiple_bookings_on_same_time_with_different_accession(df_ids7):
-    """
-    This function is used to report whether there are patients with multiple bookings on the
-    same time with different accession numbers. This is useful in order to check whether there is a large 
-    number of patients with multiple rows of data that must be merged.
-    A previous run on over 4000 lines of PACS data revealed 20 cases of different accession no on the same time.
-    Many of these were cancelled procedusres, and should be removed in data filtration.
-    Others were infact the same procedure. These shoudl have their accession number changed to the one
-    reported in the dosetrack data.
-    """
-
-    # Make a list of all patients with multiple bookings on the same day with different accession numbers:
-    patient_list = df_ids7['Pasient'].drop_duplicates()
-    for patient in patient_list:
-        # Get the booking times for this patient:
-        booking_times = df_ids7[df_ids7['Pasient'] == patient]['Bestilt dato og tidspunkt']
-        # Sort the booking times:
-        booking_times = booking_times.sort_values()
-        # if there is more than one booking:
-        if len(booking_times) > 1:
-            # loop through all bookings:
-            for i in range(len(booking_times)-1):
-                # Check if the booking times are on the same day but different time with different accesstion numbers:
-                if (booking_times.iloc[i] == booking_times.iloc[i+1]):
-                    # Get the accession numbers:
-                    acc_no = df_ids7[(df_ids7['Pasient'] == patient) & (df_ids7['Bestilt dato og tidspunkt'] == booking_times.iloc[i])]['Henvisnings-ID'].drop_duplicates()
-                    # Check if there are multiple accession numbers:
-                    if len(acc_no) > 1:
-                        print('Patient: ' + str(patient) + ' has multiple accession numbers at ' + str(booking_times.iloc[i]) + ':')
-                        print(acc_no)
-                        print('')
-
-def check_patents_with_multiple_bookings_on_same_day_with_different_accession(df_ids7):
-    """
-    This function is used to report whether there are patients with multiple bookings on the
-    same day (not on the same time, as they are included in the data curation) with
-    different accession numbers. This is useful in order to check whether there is a large 
-    number of patients with multiple rows of data that must be merged.
-    On an earlier run with 4000 lines from the PACS only two cases was found.
-    Both cases included cancelled procedures.
-    """
-
-    # Make a list of all patients with multiple bookings on the same day with different accession numbers:
-    patient_list = df_ids7['Pasient'].drop_duplicates()
-    for patient in patient_list:
-        # Get the booking times for this patient:
-        booking_times = df_ids7[df_ids7['Pasient'] == patient]['Bestilt dato og tidspunkt']
-        # Sort the booking times:
-        booking_times = booking_times.sort_values()
-        # if there is more than one booking:
-        if len(booking_times) > 1:
-            # loop through all bookings:
-            for i in range(len(booking_times)-1):
-                # Check if the booking times are on the same day but different time with different accesstion numbers:
-                if (booking_times.iloc[i].date() == booking_times.iloc[i+1].date()) & (booking_times.iloc[i].time() != booking_times.iloc[i+1].time()):
-                    # Get the accession numbers:
-                    acc_no = df_ids7[(df_ids7['Pasient'] == patient) & (df_ids7['Bestilt dato og tidspunkt'] == booking_times.iloc[i])]['Henvisnings-ID'].drop_duplicates()
-                    # Check if there are multiple accession numbers:
-                    if len(acc_no) > 1:
-                        print('Patient: ' + str(patient) + ' has multiple accession numbers at ' + str(booking_times.iloc[i].date()) + ':')
-                        print(acc_no)
-                        print('')
