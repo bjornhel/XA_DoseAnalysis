@@ -660,8 +660,9 @@ def export_examination_codes_to_text_file(df_ids7, lab):
     if not os.path.exists('Reports'):
             os.makedirs('Reports')
     with open('Reports/Examination_codes_' + lab + '.txt', 'w') as f:
+        # Write (n=number of procedures) before each code:
         for code in unique_codes:
-            f.write(code + '\n')
+            f.write('(n = ' + str(sum(codes == code)) + ') ' + code + '\n')
 
 def delete_reports(delete_folder=False):
     """

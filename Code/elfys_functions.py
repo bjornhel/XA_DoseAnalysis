@@ -32,7 +32,7 @@ def map_old_procedures(df_ids7, verbose=False):
                     'RGA PM2'                           : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
                     'RGA TPM'                           : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM'}
         
-    df_ids7['Beskrivelse'] = df_ids7['Beskrivelse'].replace(mapping_old)
+    df_ids7['Mapped Procedures'] = df_ids7['Beskrivelse'].replace(mapping_old)
     
     if verbose:
         print('Detecting old procedures from before the new Sectra PACS.')
@@ -73,7 +73,7 @@ def map_procedures(df_ids7, verbose=False):
                 'RGA Cor 1-k PM (int.)'                 : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
                 'RGA Cor Implantasjon PM/ICD (int.)'    : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM'}
 
-    df_ids7['Beskrivelse'] = df_ids7['Beskrivelse'].replace(mapping)
+    df_ids7['Mapped Procedures'] = df_ids7['Beskrivelse'].replace(mapping)
 
     if verbose:
         print('Mapping procedures...\n')
@@ -98,24 +98,24 @@ def filter_procedures(data, verbose=False):
                         'RGA Cor CRT-P \(int\.\)',
                         'RGA Cor Implantasjon PM/ICD \(int\.\) ink\. 2k og 1k PM']
    
-    # the 'keep' column will be true if any of the procedures above is in a substring of the 'Beskrivelse' column:
-    data['keep'] = data['Beskrivelse'].str.contains('|'.join(procedures_to_keep))
+    # the 'keep' column will be true if any of the procedures above is in a substring of the 'Mapped Procedures' column:
+    data['keep'] = data['Mapped Procedures'].str.contains('|'.join(procedures_to_keep))
 
     if verbose:
         # Print the totoal number of unique procedures:
-        print('The total number of unique procedures is %d' % len(data['Beskrivelse'].unique()))
+        print('The total number of unique procedures is %d' % len(data['Mapped Procedures'].unique()))
         print('\n')
 
         # Print all the procedures which will be kept:
-        print('The following %d unique procedures or procedure-combinations will be kept:' % len(data[data['keep']]['Beskrivelse'].unique()))
+        print('The following %d unique procedures or procedure-combinations will be kept:' % len(data[data['keep']]['Mapped Procedures'].unique()))
         for procedure in data[data['keep']]['Beskrivelse'].unique():
             # Print the number of procedures which will be kept:
             print(procedure)
 
         print('\n')
-        print('The following %d unique procedures or procedure-combinations will be dropped:' % len(data[~data['keep']]['Beskrivelse'].unique()))
+        print('The following %d unique procedures or procedure-combinations will be dropped:' % len(data[~data['keep']]['Mapped Procedures'].unique()))
         # Print all the procedures which will be removed:
-        for procedure in data[~data['keep']]['Beskrivelse'].unique():
+        for procedure in data[~data['keep']]['Mapped Procedures'].unique():
             print(procedure)
     
     return (data[data['keep']]).drop(columns=['keep'])
