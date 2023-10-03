@@ -17,11 +17,6 @@ def _perform_mapping(df_data, key, value):
         the description column 'Beskrivelse'.
         """
         # Check if all inclusion criteria are present in the description:
-        for elem in inclusion_criteria:
-            print('inclusion' + elem)
-        for elem in exclusion_criteria:
-            print('exclusion' + elem)
-
         if all(elem.lower() in description.lower() for elem in inclusion_criteria) & \
             ~any(elem.lower() in description.lower() for elem in exclusion_criteria):
             return True
@@ -37,8 +32,8 @@ def _perform_mapping(df_data, key, value):
     # 'Mapping Target' is set to True if all inclusion criteria are present and no exclusion criteria are present:
     # This is a temporary column that is used to check whether we are mapping allready mapped columns.
     df_data['Mapping Target'] = False
-    df_data['Mapping Target'] = df_data.loc[df_data['Beskrivelse'].apply(_check_criteria)] = True
-    2+2
+    df_data.loc[df_data['Beskrivelse'].apply(_check_criteria), 'Mapping Target'] = True
+
     # Check if no procedures were targeted by the mapping:
     if sum(df_data['Mapping Target'] == True) == 0:
         print('WARNING! No procedures were targeted by this mapping!')
@@ -47,22 +42,28 @@ def _perform_mapping(df_data, key, value):
         return df_data
 
     # Check if the mapping target is already mapped and give a warning and information if it is:
-    if sum(df_data.loc[df_data['Mapping Target'] == True, 'Mapped Procedures'] != 'Unmapped') > 0:
-        print('WARNING! Some or all mapping target is already mapped!')
+    if sum((df_data['Mapping Target'] == True) & (df_data['Mapped Procedures'] != 'Unmapped')) > 0:
+        print('\n')
+        print('WARNING! Some or all mapping targets are already mapped!')
+        print('\n')
         # Print all the inclusion criteria with an ' & ' between them:
-        print('The current inclusion criteria are:' + ' & '.join(inclusion_criteria))
-        print('The current exclusion criteria are:' + ' & '.join(exclusion_criteria))
+        print('The current inclusion criteria are: ' + ' & '.join(inclusion_criteria))
+        print('The current exclusion criteria are: ' + ' & '.join(exclusion_criteria))
         # Print a unique list of the already mapped procedures:
+        print('\n')
         print('The following procedures are already mapped:')
-        mapped_list = df_data.loc[df_data['Mapping Target'] == True, 'Beskrivelse'].unique()
+        mapped_list = df_data['Beskrivelse'][(df_data['Mapping Target'] == True) &  
+                                             (df_data['Mapped Procedures'] != 'Unmapped')].unique().tolist()
+        print('\n')
         for item in mapped_list:
             # Print the 'Beskrivelse' column ' -> ' the 'Mapped Procedures' column:
-            print(f'{item} -> {df_data.loc[df_data["Beskrivelse"] == item, "Mapped Procedures"].unique()[0]}')
+            print(f'{item}   --->   {df_data["Mapped Procedures"][df_data["Beskrivelse"] == item].unique()[0]}')
+        print('\n')
 
         print('Please check the mapping dictionary and refine it to avoid mapping the same procedure twice.')
         df_data.drop('Mapping Target', axis=1, inplace=True)
-        return df_data
-    
+        return df_data    
+
     # Map the procedures:
     df_data.loc[df_data['Mapping Target'] == True, 'Mapped Procedures'] = value
 
@@ -70,11 +71,6 @@ def _perform_mapping(df_data, key, value):
     df_data.drop('Mapping Target', axis=1, inplace=True)
 
     return df_data
-
-        
-
-
-
 
 def map_rad_xa_procedures(df_data, verbose=False):
     """
@@ -118,10 +114,29 @@ def map_rad_xa_procedures(df_data, verbose=False):
 
     # Initialize the 'Mapped Procedures' column:
     df_data['Mapped Procedures'] = 'Unmapped'
+
+    # Move the 'Mapped Procedures' column to the front:
+    cols = df_data.columns.tolist()
+    cols.insert(0, cols.pop(cols.index('Mapped Procedures')))
+    df_data = df_data.reindex(columns=cols)
    
     # Create the mapping dictionary:
-    mapping = {'Nefrostomi & innleggelse av dren'  : 'Nefrostomi innleggelse', 
-               'Nefrostomi & ~innleggelse av dren' : 'Nefrostomi skifte eller fjerning'}
+    mapping = { 'Nefrostomi & innleggelse av dren'      : 'Nefrostomi innleggelse', 
+                'Nefrostomi & ~innleggelse av dren'     : 'Nefrostomi skifte eller fjerning',
+                'Caput Embolisering'                    : 'Caput Embolisering',
+                'Caput Trombektomi'                     : 'Trombektomi',
+                'RG Tinningben'                         : 'Cochlia',
+                'Caput og collum & ~Caput Embolisering & ~Caput Trombektomi'    : 'Caput og collum',
+                'Lever TACE'                            : 'TACE',
+                'Myelografi'                            : 'Myelografi',
+                'PTC, diagnostikk'                      : 'PTC/PTBD',
+                'Galleveier - PTBD & ~PTC, diagnostikk' : 'PTC/PTBD',
+                'RGV Pulmonalarterier'                  : 'Pulmonalarterier',
+                'Øsofagus'                              : 'Øsofagus',
+                'Urethragrafi'                          : 'Urethragrafi',
+                'RG Shunt'                              : 'Shunt',
+                'RG Scoliose'                           : 'Scoliose',
+                'Cor TAVI'                              : 'TAVI'} 
 
     # Map the procedures:
     if verbose:
