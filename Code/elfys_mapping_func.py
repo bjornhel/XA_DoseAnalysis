@@ -4,13 +4,6 @@ This module contains functions for mapping the description content (column: 'Bes
 The mapped procedures column is used to organize the description into useful categories.
 """
 
-
-
-
-import pandas as pd
-import dt_ids7_export_utils as bh_utils
-
-
 def map_old_procedures(df_data, verbose=False):
     """
     This function performs mapping of older procedures if they are detected by the map_procedures function.

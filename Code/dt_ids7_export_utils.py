@@ -120,7 +120,8 @@ def _concatenate_protocol(series):
     """
     This function concatenates all the protocol information into a single string.
     """
-    return ', '.join(series.astype(str))
+    sort = series.sort_values()
+    return ', '.join(sort.astype(str))
 
 def _check_for_column(data, source, column_name):
     """
@@ -606,63 +607,84 @@ def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False):
 
 
 # Functions for exporting the data:
-def export_examination_codes_to_text_file(df_ids7, lab):
+def export_examination_codes_to_text_file(df_data, laboratory=None):
     """
-    This function exports the examination codes for a given lab to a text file.
+    This function exports the examination codes for all laboratories (if no laboratory argument is given),
+    or for a specific laboratory (if the laboratory argument is given).
     The input is the dataframe with the IDS7 data and the name of the lab as a string.
     """
 
-    # TODO: legg til en opptelling av antall prosedyrer for hver kode, hvis mulig.
+    # The following two statements enables the function to work with both the IDS7 and the merged data.
+    # If the column Accession Number exists, use the merged dataset instead of IDS7:
+    if 'Accession Number' in df_data.columns:
+        accession_col = 'Accession Number'
+        lab_col = 'Modality Room'
+        dataset = 'Merged'
+
+    else:
+        accession_col = 'Henvisnings-ID'
+        lab_col = 'Rom/modalitet (RIS)'
+        dataset = 'IDS7'
     
     # Check whether the column 'Henvisnings-ID' exists:
-    if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
+    if not _check_for_column(df_data, dataset, accession_col):
         print('Without this column, we cannot aggregate procedures per accession.')
         print('\n')
         return
     
     # Check whether the column 'Rom/modalitet (RIS)' exists:
-    if not _check_for_column(df_ids7, 'IDS7', 'Rom/modalitet (RIS)'):
+    if not _check_for_column(df_data, dataset, lab_col):
         print('Without this column, we cannot list procedures per laboratory.')
         print('\n')
         return
     
     # Check whether the column 'Beskrivelse' exists:
-    if not _check_for_column(df_ids7, 'IDS7', 'Beskrivelse'):
+    if not _check_for_column(df_data, dataset, 'Beskrivelse'):
         print('Without this column, we cannot make a list of procedures.')
         print('\n')
         return
     
-    df_lab = df_ids7[df_ids7['Rom/modalitet (RIS)'] == lab]
-    # Exit function with an error if there are no rows with the given lab:
-    if len(df_lab) == 0:
-        print('No rows with the given lab: ' + lab)
-        return
+    # Iterate through all the labs in the dataset:
+    
+    # Filter the dataset to only include the the given lab is lab is not None:
+    if laboratory is not None:
+        df_data = df_data[df_data[lab_col] == laboratory]
+        if len(df_data) == 0:
+            print('No rows with the given lab: ' + laboratory)
+            return
 
-    # Make an pandas series with an index of the accession numbers that store the codes:
-    codes = pd.Series(index = df_lab['Henvisnings-ID'].unique())
-    for accession_no in codes.index:
-        procedure = df_lab[df_lab['Henvisnings-ID'] == accession_no]['Beskrivelse'].unique()
-        procedure.sort()
-        # Merge all the codes into one string:
-        code = ''
-        for i in procedure:
-            code += i + ', '
-        # Remove the last comma and space:
-        code = code[:-2]
-        # Store the code in the series:
-        codes[accession_no] = code
+    for lab in df_data[lab_col].unique():
+        df_lab = df_data[df_data[lab_col] == lab]
+        # Exit function with an error if there are no rows with the given lab:
+        if len(df_lab) == 0:
+            print('No rows with the given lab: ' + lab)
+            return
 
-    # Make a list of unique codes:
-    unique_codes = codes.unique()
-    # Sort the list:
-    unique_codes.sort()
-    # Export the list to a text file in the Reports folder:
-    if not os.path.exists('Reports'):
-            os.makedirs('Reports')
-    with open('Reports/Examination_codes_' + lab + '.txt', 'w') as f:
-        # Write (n=number of procedures) before each code:
-        for code in unique_codes:
-            f.write('(n = ' + str(sum(codes == code)) + ') ' + code + '\n')
+        # Make an pandas series with an index of the accession numbers that store the codes:
+        codes = pd.Series(index = df_lab[accession_col].unique())
+        for accession_no in codes.index:
+            procedure = df_lab[df_lab[accession_col] == accession_no]['Beskrivelse'].unique()
+            procedure.sort()
+            # Merge all the codes into one string:
+            code = ''
+            for i in procedure:
+                code += i + ', '
+            # Remove the last comma and space:
+            code = code[:-2]
+            # Store the code in the series:
+            codes[accession_no] = code
+
+        # Make a list of unique codes:
+        unique_codes = codes.unique()
+        # Sort the list:
+        unique_codes.sort()
+        # Export the list to a text file in the Reports folder:
+        if not os.path.exists('Reports'):
+                os.makedirs('Reports')
+        with open('Reports/Examination_codes_' + lab + '.txt', 'w') as f:
+            # Write (n=number of procedures) before each code:
+            for code in unique_codes:
+                f.write('(n = ' + str(sum(codes == code)) + ') ' + code + '\n')
 
 def delete_reports(delete_folder=False):
     """
