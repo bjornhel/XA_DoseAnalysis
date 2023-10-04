@@ -3,7 +3,7 @@ import seaborn as sns
 import os
 import glob
 import matplotlib.pyplot as plt
-import reporting_utils as bh_report
+import reporting_module as bh_report
 
 # This module contains functions for performing the various common plots.
 
