@@ -49,6 +49,11 @@ def get_rad_xa_mapping_dict():
                 'Urethragrafi'                          : 'Urethragrafi',
                 'RG Shunt'                              : 'Shunt',
                 'RG Scoliose'                           : 'Scoliose',
-                'Cor TAVI'                              : 'TAVI'} 
+                'Cor TAVI'                              : 'TAVI',
+                'EVAR'                                  : 'EVAR',
+                'RGV Underex'                           : 'Underex',
+                'RGV Overex'                            : 'Overex',
+                'Diafragmabevegelse'                    : 'Diafragmabevegelse',
+                'Bekken Embolisering'                   : 'Bekken Embolisering'} 
 
     return mapping

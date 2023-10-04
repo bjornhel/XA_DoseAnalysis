@@ -1,6 +1,7 @@
 
 import seaborn as sns
 import os
+from IPython.display import display
 import glob
 import matplotlib.pyplot as plt
 import reporting_module as bh_report
