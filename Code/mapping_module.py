@@ -39,8 +39,10 @@ def _perform_mapping(df_data, key, value):
         df_data.drop('Mapping Target', axis=1, inplace=True)
         return df_data
 
-    # Check if the mapping target is already mapped and give a warning and information if it is:
-    if sum((df_data['Mapping Target'] == True) & (df_data['Mapped Procedures'] != 'Unmapped')) > 0:
+    # Check if the mapping target is already mapped with a different value and give a warning and information if it is:
+    if sum((df_data['Mapping Target'] == True) & ~((df_data['Mapped Procedures'] == 'Unmapped') | (df_data['Mapped Procedures'] == value))) > 0:
+        print('\n')
+        print('-'*30)
         print('\n')
         print('WARNING! Some or all mapping targets are already mapped!')
         print('\n')
@@ -53,12 +55,17 @@ def _perform_mapping(df_data, key, value):
         mapped_list = df_data['Beskrivelse'][(df_data['Mapping Target'] == True) &  
                                              (df_data['Mapped Procedures'] != 'Unmapped')].unique().tolist()
         print('\n')
+
         for item in mapped_list:
-            # Print the 'Beskrivelse' column ' -> ' the 'Mapped Procedures' column:
-            print(f'{item}   --->   {df_data["Mapped Procedures"][df_data["Beskrivelse"] == item].unique()[0]}')
+            # Print the 'Beskrivelse' column ' -> ' the 'Mapped Procedures' column, only of the 'Mapped Procedure' differs from value:
+            if df_data['Mapped Procedures'][df_data['Beskrivelse'] == item].unique()[0] != value:
+                print(f'{item}   --->   {df_data["Mapped Procedures"][df_data["Beskrivelse"] == item].unique()[0]}')
         print('\n')
 
         print('Please check the mapping dictionary and refine it to avoid mapping the same procedure twice.')
+        print('\n')
+        print('-'*30)
+        print('\n')
         df_data.drop('Mapping Target', axis=1, inplace=True)
         return df_data    
 

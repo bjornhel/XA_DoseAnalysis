@@ -34,26 +34,66 @@ def get_rad_xa_mapping_dict():
     """
 
     # Create the mapping dictionary:
-    mapping = { 'Nefrostomi & innleggelse av dren'      : 'Nefrostomi innleggelse', 
-                'Nefrostomi & ~innleggelse av dren'     : 'Nefrostomi skifte eller fjerning',
+    mapping = { # Caput og Collum prosedyrer:
                 'Caput Embolisering'                    : 'Caput Embolisering',
                 'Caput Trombektomi'                     : 'Trombektomi',
-                'RG Tinningben'                         : 'Cochlia',
                 'Caput og collum & ~Caput Embolisering & ~Caput Trombektomi'    : 'Caput og collum',
-                'Lever TACE'                            : 'TACE',
                 'Myelografi'                            : 'Myelografi',
-                'PTC, diagnostikk'                      : 'PTC/PTBD',
-                'Galleveier - PTBD & ~PTC, diagnostikk' : 'PTC/PTBD',
-                'RGV Pulmonalarterier'                  : 'Pulmonalarterier',
-                'Øsofagus'                              : 'Øsofagus',
-                'Urethragrafi'                          : 'Urethragrafi',
-                'RG Shunt'                              : 'Shunt',
+                'Columna & ~Myelografi & ~Caput'        : 'RG Columna eks. Myelografi',
+                
+                # IVS Operasjon:
+                'RG Tinningben'                         : 'Cochlia',
                 'RG Scoliose'                           : 'Scoliose',
-                'Cor TAVI'                              : 'TAVI',
-                'EVAR'                                  : 'EVAR',
-                'RGV Underex'                           : 'Underex',
-                'RGV Overex'                            : 'Overex',
+                
+                # RF Prosedyrer:
+                'RG Shunt'                              : 'Shunt',
                 'Diafragmabevegelse'                    : 'Diafragmabevegelse',
-                'Bekken Embolisering'                   : 'Bekken Embolisering'} 
+                'Hysterosalpingografi'                  : 'HSG',
+                'Øsofagus'                              : 'Øsofagus/ØVD Enkeltkontrast',
+                'RG ØVD enkeltkontrast'                 : 'Øsofagus/ØVD Enkeltkontrast',
+                'Urethragrafi'                          : 'Urethragrafi/Urografi/Urinveier/MUCG',
+                'RG Urografi'                           : 'Urethragrafi/Urografi/Urinveier/MUCG',
+                'RG MUCG'                               : 'Urethragrafi/Urografi/Urinveier/MUCG',
+                'RG Urinveier & ~Nefrostomi'            : 'Urethragrafi/Urografi/Urinveier/MUCG',   
+                
+                # Abdomen/Bekken prosedyrer:
+                'Nefrostomi & innleggelse av dren'      : 'Nefrostomi innleggelse', 
+                'Nefrostomi & ~innleggelse av dren'     : 'Nefrostomi skifte eller fjerning',
+                'Lever TACE'                            : 'TACE',
+                'PTC, diagnostikk'                      : 'PTC/PTBD',
+                'Galleveier - PTBD'                     : 'PTC/PTBD',
+                'RGV Pulmonalarterier'                  : 'Pulmonalarterier',
+                'EVAR'                                  : 'EVAR',
+                'RGA Abdomen PTA'                       : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
+                'RGA Abdomen Embolisering & ~EVAR'      : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
+                'RGA Aorta PTA'                         : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
+                'RGA Abdomen Stent & ~EVAR'             : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
+                'RGA Aorta Stent'                       : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
+                'Bekken Embolisering'                   : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
+                'RGA Bekken PTA'                        : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
+                'RGA Bekken Stent'                      : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
+                'RGA Lever & ~Lever TACE & ~LeverTX'    : 'Lever',
+                'RGA Milt'                              : 'Milt/Nyrer',
+                'RGA Nyrer & ~RGA Abdomen Stent & ~EVAR & ~Aorta & ~Bekken Embolisering'
+                                                        : 'Milt/Nyrer',
+                'RGA Nyrer PTA & ~RGA Abdomen Stent & ~EVAR & ~Aorta & ~Bekken Embolisering'                        
+                                                        : 'Milt/Nyrer',
+
+                'RG Abdomen - Abscessografi & ~PTC, diagnostikk & ~Galleveier - PTBD & ~Nefrostomi'
+                                                        : 'RG Abdomen - Abscessografi, Fjerning/Skifte av dren',
+                'RG Abdomen - Skifte av dren & ~PTC, diagnostikk & ~Galleveier - PTBD & ~Nefrostomi'
+                                                        : 'RG Abdomen - Abscessografi, Fjerning/Skifte av dren',
+                'RG Abdomen - Fjerning av dren & ~PTC, diagnostikk & ~Galleveier - PTBD & ~Nefrostomi'
+                                                        : 'RG Abdomen - Abscessografi, Fjerning/Skifte av dren',
+
+                # Ekstremiteter:                                        
+                'RGV Underex'                           : 'Underex',
+                'RGA Underex'                           : 'Underex',
+                'RGV Overex'                            : 'Overex',
+                'RGA Overex & ~EVAR & ~Caput'           : 'Overex',
+                
+                # Hjerteprosedyrer tatt på IVS:
+                'Cor TAVI'                              : 'TAVI'
+                } 
 
     return mapping
