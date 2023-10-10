@@ -134,6 +134,17 @@ def _check_for_column(data, source, column_name):
     else:
         return True
 
+def _check_for_fnr(data):
+    """
+    This function check for a column named Fødselsnummer.
+    """
+    if 'Fødselsnummer' in data.columns:
+        print('WARNING!!!: The column "Fødselsnummer" exists in the IDS7 dataframe.')
+        print('This column must be deleted, or anonymized before the data can be used!!!')
+        _print_pasient_column_tutorial()
+        return True
+
+
 def _print_pasient_column_tutorial():
     """
     This function prints a tutorial for how to create the Pasient column in the IDS7 data using excel.
@@ -208,6 +219,10 @@ def filter_NaT(df_ids7, verbose=False):
         print('\n')
         return df_ids7
     
+    # Stop execution if the dataframe contains the column 'Fødselsnummer':
+    if _check_for_fnr(df_ids7):
+        return df_ids7
+    
     if verbose:
         print('Number of rows with NaT in the column "Bestilt dato og tidspunkt": {}'.format(sum(df_ids7['Bestilt dato og tidspunkt'].isnull())))
 
@@ -218,22 +233,29 @@ def filter_cancelled(df_ids7, verbose=False):
     """ 
     This function removes rows where the procedures have been cancelled.
     """
+    # Stop execution if the dataframe contains the column 'Fødselsnummer':
+    if _check_for_fnr(df_ids7):
+        return df_ids7
+
     # Check whether the column 'Avbrutt' exists:
     if not _check_for_column(df_ids7, 'IDS7', 'Avbrutt'):
         print('Without this column, we cannot remove cancelled procedures.')
         print('\n')
         return df_ids7
-
-    if verbose:
-        print('Number of cancelled procedures: {}'.format(sum(df_ids7['Avbrutt'] == 'Avbrutt')))
-
-    df_ids7 = df_ids7[df_ids7['Avbrutt'] != 'Avbrutt']
-    return df_ids7
+    
+    if _check_for_column(df_ids7, 'IDS7', 'Avbrutt'):
+        if verbose:
+            print('Number of cancelled procedures: {}'.format(sum(df_ids7['Avbrutt'] == 'Avbrutt')))
+        df_ids7 = df_ids7[df_ids7['Avbrutt'] != 'Avbrutt']
+        return df_ids7
 
 def filter_phantom_etc(df_ids7, verbose=False):
     """ 
     This function removes rows representing non-human subjects (phantoms, animals, etc.).
     """
+    # Stop execution if the dataframe contains the column 'Fødselsnummer':
+    if _check_for_fnr(df_ids7):
+        return df_ids7
 
     # Check whether the column 'Henvisningskategori (RIS)' exists:
     if not _check_for_column(df_ids7, 'IDS7', 'Henvisningskategori (RIS)'):
@@ -258,7 +280,10 @@ def check_accession_format(df_ids7, verbose=False):
     If verbose is True, the function will print the number of invalid accession numbers
     and the invalid accession numbers.
     """
-    
+    # Stop execution if the dataframe contains the column 'Fødselsnummer':
+    if _check_for_fnr(df_ids7):
+        return df_ids7
+
     # Check whether the column 'Henvisnings-ID' exists:
     if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
         print('Without this column, we cannot check the accession number format, or merge IDS7 with DoseTrack data.')
@@ -286,6 +311,9 @@ def check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=False):
     If verbose is True, the function will print the number of accession numbers in IDS7
     and the number of accession numbers in IDS7 not in DoseTrack.
     """
+    # Stop execution if the dataframe contains the column 'Fødselsnummer':
+    if _check_for_fnr(df_ids7):
+        return df_ids7
 
     # Check whether the column 'Henvisnings-ID' exists:
     if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
@@ -314,7 +342,10 @@ def check_accession_dt_vs_ids7(df_dt, df_ids7, verbose=False):
     If verbose is True, the function will print the number of accession numbers in DoseTrack
     and the number of accession numbers in DoseTrack not in IDS7.
     """
-    
+    # Stop execution if the dataframe contains the column 'Fødselsnummer':
+    if _check_for_fnr(df_ids7):
+        return df_ids7
+
     # Check whether the column 'Henvisnings-ID' exists:
     if not _check_for_column(df_dt, 'DoseTrack', 'Accession Number'):
         print('Without this column, it is impossible to merge the DoseTrack with the IDS7 data.')
@@ -345,6 +376,10 @@ def check_patents_with_multiple_bookings_on_same_time_with_different_accession(d
     Others were infact the same procedure. These shoudl have their accession number changed to the one
     reported in the dosetrack data.
     """
+    # Stop execution if the dataframe contains the column 'Fødselsnummer':
+    if _check_for_fnr(df_ids7):
+        return df_ids7
+
 
     # Check whether the column 'Pasient' exists:
     if not _check_for_column(df_ids7, 'IDS7', 'Pasient'):
@@ -394,6 +429,9 @@ def check_patents_with_multiple_bookings_on_same_day_with_different_accession(df
     On an earlier run with 4000 lines from the PACS only two cases was found.
     Both cases included cancelled procedures.
     """
+    # Stop execution if the dataframe contains the column 'Fødselsnummer':
+    if _check_for_fnr(df_ids7):
+        return df_ids7
 
     # Check whether the column 'Pasient' exists:
     if not _check_for_column(df_ids7, 'IDS7', 'Pasient'):
@@ -443,8 +481,11 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False):
     used by dosetrack. If both or non of the accesssion numbers are in used, they remain untouched.
     After the accession numbers have been overwritten the function check_accession_ids7_vs_dt is run from this function.
     """
+    # Stop execution if the dataframe contains the column 'Fødselsnummer':
+    if _check_for_fnr(df_ids7):
+        return df_ids7
 
-        # Check whether the column 'Pasient' exists:
+    # Check whether the column 'Pasient' exists:
     if not _check_for_column(df_ids7, 'IDS7', 'Pasient'):
         print('Without this column, we cannot keep track of which procedures are on the same patient.')
         _print_pasient_column_tutorial()
@@ -520,7 +561,10 @@ def merge_ids7_dt(df_ids7, df_dt, verbose=False):
     accession number are concatenated into one string.
     For the DoseTrack data, the sum of the DAP, CAK and F+A Time are calculated for each accession number.
     """
-    
+    # Stop execution if the dataframe contains the column 'Fødselsnummer':
+    if _check_for_fnr(df_ids7):
+        return df_ids7
+
     # Check whether the column 'Henvisnings-ID' exists:
     if not _check_for_column(df_ids7, 'IDS7', 'Henvisnings-ID'):
         print('Without this column, we cannot merge the IDS7 into the DoseTrack data.')
