@@ -33,6 +33,8 @@ def get_rad_xa_mapping_dict():
     To change or add to the mapping of procedures, edit the 'mapping' dictionary below.
     """
 
+
+
     # Create the mapping dictionary:
     mapping = { # Caput og Collum prosedyrer:
                 'Caput Embolisering'                    : 'Caput Embolisering',
@@ -54,16 +56,19 @@ def get_rad_xa_mapping_dict():
                 'Urethragrafi'                          : 'Urethragrafi/Urografi/Urinveier/MUCG',
                 'RG Urografi'                           : 'Urethragrafi/Urografi/Urinveier/MUCG',
                 'RG MUCG'                               : 'Urethragrafi/Urografi/Urinveier/MUCG',
-                'RG Urinveier & ~Nefrostomi'            : 'Urethragrafi/Urografi/Urinveier/MUCG',   
+                'RG Urinveier & ~Nefrostomi & ~Pyelografi'            : 'Urethragrafi/Urografi/Urinveier/MUCG',   
                 
                 # Abdomen/Bekken prosedyrer:
                 'Nefrostomi & innleggelse av dren'      : 'Nefrostomi innleggelse', 
-                'Nefrostomi & ~innleggelse av dren'     : 'Nefrostomi skifte eller fjerning',
+                'Nefrostomi & ~innleggelse av dren'     : 'Nefrostomi/Pyelografi skifte eller fjerning',
+                'Pyelografi & ~Nefrostomi'                            : 'Nefrostomi/Pyelografi skifte eller fjerning',
                 'Lever TACE'                            : 'TACE',
                 'PTC, diagnostikk'                      : 'PTC/PTBD',
                 'Galleveier - PTBD'                     : 'PTC/PTBD',
-                'RGV Pulmonalarterier'                  : 'Pulmonalarterier',
-                'EVAR'                                  : 'EVAR',
+                'RGV Pulmonalarterier'                  : 'Pulmonalarterier/PTA/Embolisering',
+                'BEVAR/FEVAR'                           : 'BEVAR/FEVAR',
+                'TEVAR & ~BEVAR/FEVAR'                  : 'TEVAR',
+                'EVAR & ~TEVAR & ~BEVAR/FEVAR'          : '-EVAR',
                 'RGA Abdomen PTA'                       : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
                 'RGA Abdomen Embolisering & ~EVAR'      : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
                 'RGA Aorta PTA'                         : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
