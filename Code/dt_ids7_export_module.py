@@ -290,10 +290,12 @@ def check_accession_format(df_ids7, verbose=False):
         print('\n')
         return df_ids7
     
-    valid_formats = r'^(NORRH|NRRH|NKRH|NIRH|NNRH|NRUL|NKUL|NRRA|NRAK|MUAH|NLVO)'
+    valid_formats = r'^(NORRH|NRRH|NKRH|NIRH|NNRH|NRUL|NKUL|NRRA|NRAK|NLVO|MUAH_)'
     patten = re.compile(valid_formats)
 
-    is_valid_format = (df_ids7['Henvisnings-ID'].str.match(patten)) & (df_ids7['Henvisnings-ID'].str.len() == 16)
+    # HenvinsingsID must have the correct start and length of 16 characters (MUAH_ numbers have 12):
+    is_valid_format = (df_ids7['Henvisnings-ID'].str.match(patten)) &  \
+                      ((df_ids7['Henvisnings-ID'].str.len() == 16) | (df_ids7['Henvisnings-ID'].str.len() == 12))
 
     if verbose:
         print('Number of rows with invalid accession number: {}'.format(sum(~is_valid_format)))
