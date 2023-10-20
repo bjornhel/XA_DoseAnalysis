@@ -290,7 +290,7 @@ def check_accession_format(df_ids7, verbose=False):
         print('\n')
         return df_ids7
     
-    valid_formats = r'^(NORRH|NRRH|NRAK|NIRH|NKRH|NKUL|NNRH|NRRA|NRUL)'
+    valid_formats = r'^(NORRH|NRRH|NKRH|NIRH|NNRH|NRUL|NKUL|NRRA|NRAK|MUAH|NLVO)'
     patten = re.compile(valid_formats)
 
     is_valid_format = (df_ids7['Henvisnings-ID'].str.match(patten)) & (df_ids7['Henvisnings-ID'].str.len() == 16)
