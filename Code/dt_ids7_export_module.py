@@ -305,6 +305,23 @@ def check_accession_format(df_ids7, verbose=False):
     
     return df_ids7[is_valid_format]
 
+def _convert_old_siemens_pacs_accession_format(df_dt, verbose=False):
+    """
+    This function is called if the check_accession_ids7_vs_dt function detects that the column 
+    'Accession Number' contains the old Siemens PACS accession numbers.
+    These numbers have 7 numerical digits. 
+    In the new PACS these have been converted to the new format by attaching "MUAH_" in front of the number.
+    This function will convert the old format to the new format.
+    """
+    if verbose:
+        print('{} entries was found matching the old siemens PACS format (7 characters long with only numbers.)' .format(sum(df_dt['Accession Number'].str.match(r'^[0-9]{7}$'))))
+        print('These will be converted to the new Sectra PACS format by adding "MUAH_" in front of the number.')
+
+    # Convert any entries of the df_dt['Accession Number'] that are 7 characters long and only contains numbers:
+    df_dt.loc[df_dt['Accession Number'].str.match(r'^[0-9]{7}$'), 'Accession Number'] = 'MUAH_' + \
+    df_dt.loc[df_dt['Accession Number'].str.match(r'^[0-9]{7}$'), 'Accession Number']
+    return df_dt
+
 def check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=False):
     """
     This function check whether the accession numbers in IDS7 are in DoseTrack.
@@ -328,6 +345,11 @@ def check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=False):
         print('\n')
         return df_ids7
     
+    # Check if the column 'Accession Number' contains the old Siemens PACS accession numbers (7 digits long and only numbers):
+    # If any such numbers are found, convert them to the new format:
+    if sum(df_dt['Accession Number'].str.match(r'^[0-9]{7}$')) > 0:
+        df_dt = _convert_old_siemens_pacs_accession_format(df_dt, verbose=verbose)
+
     df_ids7['Henvisning_i_dt'] = df_ids7['Henvisnings-ID'].isin(df_dt['Accession Number'].values)
     
     if verbose:
@@ -474,7 +496,7 @@ def check_patents_with_multiple_bookings_on_same_day_with_different_accession(df
                         print(acc_no)
                         print('')
 
-def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False):
+def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False, manual_replace=False):
     """
     For a few patients having a procedure, there has been created two accession numbers in IDS7.
     DoseTrack will only use one of these if the patient only got one procedure.
@@ -537,6 +559,19 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False):
                     if len(acc_nr_in_dt[acc_nr_in_dt == True]) > 1 and len(acc_nr_in_dt[acc_nr_in_dt == False]) > 0:
                         print('WARNING: there are two or more accessions with data in dosetrack and at least one without.')
                         print('Please investigate patient: ' + str(patient) + ', time: ' + str(time) + ', accession numbers: ' + str(acc_nr))
+                        if manual_replace:
+                            print('Please enter the accession number that should be used:')
+                            acc_nr_in_dt = input()
+                            df_ids7.loc[(df_ids7['Pasient'] == patient) & \
+                                        (df_ids7['Bestilt dato og tidspunkt'] == time) & \
+                                        (df_ids7['Henvisning_i_dt'] == False) \
+                                        , 'Henvisnings-ID'] = acc_nr_in_dt
+                            status_changed = True
+                            print('Inserted accession number: ' + str(acc_nr_in_dt) + \
+                                ' for patient: ' + str(patient) + ', time: ' + str(time) + ', accession numbers: ' + str(acc_nr))
+
+
+
                     else:
                         # Insert the accession number which is included in the DoseTrack data into all the rows for the same 
                         # patient and booking with no dosetrack data:
@@ -650,7 +685,6 @@ def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False):
     df_dt   = check_accession_dt_vs_ids7(df_dt, df_ids7, verbose=verbose)
 
     return df_ids7
-
 
 # Functions for exporting the data:
 def export_examination_codes_to_text_file(df_data, laboratory=None):
