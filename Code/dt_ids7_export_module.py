@@ -144,7 +144,6 @@ def _check_for_fnr(data):
         _print_pasient_column_tutorial()
         return True
 
-
 def _print_pasient_column_tutorial():
     """
     This function prints a tutorial for how to create the Pasient column in the IDS7 data using excel.
@@ -181,8 +180,6 @@ def _add_optional_columns(data, agg_dict, agg_dict_optional, source, verbose=Fal
             print('This column will not be included in the merged data.')
             print('\n')
     return agg_dict
-
-
 
 # Functions for filtering the IDS7 dataframe:
 def remove_unnecessary_columns(df_ids7, verbose=False):
