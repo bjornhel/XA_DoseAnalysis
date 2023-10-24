@@ -496,7 +496,7 @@ def check_patents_with_multiple_bookings_on_same_day_with_different_accession(df
                         print(acc_no)
                         print('')
 
-def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False, manual_replace=False):
+def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False, manual_replace=True):
     """
     For a few patients having a procedure, there has been created two accession numbers in IDS7.
     DoseTrack will only use one of these if the patient only got one procedure.
@@ -559,19 +559,36 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False, manual
                     if len(acc_nr_in_dt[acc_nr_in_dt == True]) > 1 and len(acc_nr_in_dt[acc_nr_in_dt == False]) > 0:
                         print('WARNING: there are two or more accessions with data in dosetrack and at least one without.')
                         print('Please investigate patient: ' + str(patient) + ', time: ' + str(time) + ', accession numbers: ' + str(acc_nr))
+                        # Loop to help the user manually enter the accession number that should be used:
                         if manual_replace:
-                            print('Please enter the accession number that should be used:')
-                            acc_nr_in_dt = input()
-                            df_ids7.loc[(df_ids7['Pasient'] == patient) & \
-                                        (df_ids7['Bestilt dato og tidspunkt'] == time) & \
-                                        (df_ids7['Henvisning_i_dt'] == False) \
-                                        , 'Henvisnings-ID'] = acc_nr_in_dt
-                            status_changed = True
-                            print('Inserted accession number: ' + str(acc_nr_in_dt) + \
-                                ' for patient: ' + str(patient) + ', time: ' + str(time) + ', accession numbers: ' + str(acc_nr))
-
-
-
+                            while True:
+                                # Get the user to enter the accession number that should be used:
+                                print('Please enter the accession number that should be used:')
+                                # List the accession numbers without data in dosetrack along with descriptions:
+                                print('Accession numbers without data in dosetrack:')
+                                for acc in acc_nr_in_dt[acc_nr_in_dt == False].index:
+                                    print(acc + ', Beskrivelse: ')
+                                    for beskrivelse in df_ids7[(df_ids7['Pasient'] == patient) & (df_ids7['Bestilt dato og tidspunkt'] == time) & \
+                                                (df_ids7['Henvisnings-ID'] == acc)]['Beskrivelse']:
+                                        print(beskrivelse)
+                                # List the accession numbers with data in dosetrack along with descriptions:
+                                print('Accession numbers with data in dosetrack:')
+                                for acc in acc_nr_in_dt[acc_nr_in_dt == True].index:
+                                    print(acc + ', Beskrivelse: ')
+                                    for beskrivelse in df_ids7[(df_ids7['Pasient'] == patient) & (df_ids7['Bestilt dato og tidspunkt'] == time) & \
+                                                (df_ids7['Henvisnings-ID'] == acc)]['Beskrivelse']:
+                                        print(beskrivelse)                                   
+                                manual_input = input()
+                                # Check if the accession number is in the list of accession numbers for this patient at this time with data in dosetrack:
+                                if manual_input in acc_nr_in_dt[acc_nr_in_dt == True].index:
+                                    # Insert the manually entered accession number into all the rows for the same patient and booking with no dosetrack data:
+                                    df_ids7.loc[(df_ids7['Pasient'] == patient) & \
+                                                (df_ids7['Bestilt dato og tidspunkt'] == time) & \
+                                                (df_ids7['Henvisning_i_dt'] == False) \
+                                                , 'Henvisnings-ID'] = manual_input
+                                    print('Inserted accession number: ' + str(manual_input) + ' for patient: ' + str(patient) + ', time: ' + str(time) + ' for elements not in dosetrack.')
+                                    break
+                                print('The accession number you entered is not in the list of accession numbers with data in dosetrack.')
                     else:
                         # Insert the accession number which is included in the DoseTrack data into all the rows for the same 
                         # patient and booking with no dosetrack data:
