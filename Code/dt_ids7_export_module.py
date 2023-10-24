@@ -84,7 +84,7 @@ merge_ids7_dt:              This function merged the data from IDS7 and DoseTrac
                             In this function there is a lost of optional columns for both dataframes to be included in the merged dataframe.
                             The users should add parameters to the optional lists if they would like them added to the merged dataframe.
 
---------------- Funciton for exporting data: ----------
+--------------- Function for exporting data: ----------
 export_examination_codes_to_text_file:      This function generates a txt file with one line for each combination of aggregated
                                             examination descriptions in a folder called Reports.
                                             These lists can be printed and shown to the department to promote discussion on which
