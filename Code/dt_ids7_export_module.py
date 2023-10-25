@@ -493,7 +493,7 @@ def check_patents_with_multiple_bookings_on_same_day_with_different_accession(df
                         print(acc_no)
                         print('')
 
-def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False, manual_replace=True):
+def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False, manual_replace=False):
     """
     For a few patients having a procedure, there has been created two accession numbers in IDS7.
     DoseTrack will only use one of these if the patient only got one procedure.
@@ -560,6 +560,7 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False, manual
                         if manual_replace:
                             while True:
                                 # Get the user to enter the accession number that should be used:
+                                print('\n')
                                 print('Please enter the accession number that should be used:')
                                 # List the accession numbers without data in dosetrack along with descriptions:
                                 print('Accession numbers without data in dosetrack:')
@@ -569,6 +570,7 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False, manual
                                                 (df_ids7['Henvisnings-ID'] == acc)]['Beskrivelse']:
                                         print(beskrivelse)
                                 # List the accession numbers with data in dosetrack along with descriptions:
+                                print('\n')
                                 print('Accession numbers with data in dosetrack:')
                                 for acc in acc_nr_in_dt[acc_nr_in_dt == True].index:
                                     print(acc + ', Beskrivelse: ')
@@ -583,9 +585,12 @@ def overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=False, manual
                                                 (df_ids7['Bestilt dato og tidspunkt'] == time) & \
                                                 (df_ids7['Henvisning_i_dt'] == False) \
                                                 , 'Henvisnings-ID'] = manual_input
+                                    status_changed = True
                                     print('Inserted accession number: ' + str(manual_input) + ' for patient: ' + str(patient) + ', time: ' + str(time) + ' for elements not in dosetrack.')
                                     break
-                                print('The accession number you entered is not in the list of accession numbers with data in dosetrack.')
+                                print('WARNING!!! The accession number you entered is not in the list of accession numbers with data in dosetrack.')
+                        else:
+                            print('Switch the manual_replace flag to True to enable manual accession number replacement.')
                     else:
                         # Insert the accession number which is included in the DoseTrack data into all the rows for the same 
                         # patient and booking with no dosetrack data:
@@ -678,7 +683,7 @@ def merge_ids7_dt(df_ids7, df_dt, verbose=False):
     return data
 
 # Utility function to run all filters and checks:
-def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False):
+def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False, manual_replace=False):
     """
     This utilityfunction runs the following funcions:
     filter_NaT
@@ -695,7 +700,7 @@ def run_all_cleanup_filters_and_checks(df_ids7, df_dt, verbose=False):
     df_ids7 = filter_phantom_etc(df_ids7, verbose=verbose)
     df_ids7 = check_accession_format(df_ids7, verbose=verbose)
     df_ids7 = check_accession_ids7_vs_dt(df_ids7, df_dt, verbose=verbose)
-    df_ids7 = overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=verbose)
+    df_ids7 = overwrite_duplicated_accession_numbers(df_ids7, df_dt, verbose=verbose, manual_replace=manual_replace)
     df_dt   = check_accession_dt_vs_ids7(df_dt, df_ids7, verbose=verbose)
 
     return df_ids7
