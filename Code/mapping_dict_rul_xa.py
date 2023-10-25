@@ -37,65 +37,48 @@ def get_rul_xa_mapping_dict():
 
     # Create the mapping dictionary:
     mapping = { # Caput og Collum prosedyrer:
-                'Caput Embolisering'                    : 'Caput Embolisering',
                 'Caput Trombektomi'                     : 'Trombektomi',
-                'Caput og collum & ~Caput Embolisering & ~Caput Trombektomi'    : 'Caput og collum',
-                'Myelografi'                            : 'Myelografi',
-                'Columna & ~Myelografi & ~Caput'        : 'RG Columna eks. Myelografi',
+                'Cervical Nerverotsinjeksjon'           : 'Cervical Nerverotsinjeksjon',
+                'RG Columna - Vertebroplastikk (int.)'  : 'Vertebroplastikk',
+                'RG Columna & ~Vertebroplastikk'        : 'Div. RG Columna u. Vertebroplastikk',
+                'RG Shuntveier'                         : 'Shuntveier',
                 
-                # IVS Operasjon:
-                'RG Tinningben'                         : 'Cochlia',
-                'RG Scoliose'                           : 'Scoliose',
-                
-                # RF Prosedyrer:
-                'RG Shunt'                              : 'Shunt',
-                'Diafragmabevegelse'                    : 'Diafragmabevegelse',
-                'Hysterosalpingografi'                  : 'HSG',
-                'Øsofagus'                              : 'Øsofagus/ØVD Enkeltkontrast',
-                'RG ØVD enkeltkontrast'                 : 'Øsofagus/ØVD Enkeltkontrast',
-                'Urethragrafi'                          : 'Urethragrafi/Urografi/Urinveier/MUCG',
-                'RG Urografi'                           : 'Urethragrafi/Urografi/Urinveier/MUCG',
-                'RG MUCG'                               : 'Urethragrafi/Urografi/Urinveier/MUCG',
-                'RG Urinveier & ~Nefrostomi & ~Pyelografi'            : 'Urethragrafi/Urografi/Urinveier/MUCG',   
-                
-                # Abdomen/Bekken prosedyrer:
+                # RF1 og 2  Prosedyrer:
                 'Nefrostomi & innleggelse av dren'      : 'Nefrostomi innleggelse', 
                 'Nefrostomi & ~innleggelse av dren'     : 'Nefrostomi/Pyelografi skifte eller fjerning',
-                'Pyelografi & ~Nefrostomi'                            : 'Nefrostomi/Pyelografi skifte eller fjerning',
-                'Lever TACE'                            : 'TACE',
-                'PTC, diagnostikk'                      : 'PTC/PTBD',
-                'Galleveier - PTBD'                     : 'PTC/PTBD',
-                'RGV Pulmonalarterier'                  : 'Pulmonalarterier/PTA/Embolisering',
-                'BEVAR/FEVAR'                           : 'BEVAR/FEVAR',
-                'TEVAR & ~BEVAR/FEVAR'                  : 'TEVAR',
-                'EVAR & ~TEVAR & ~BEVAR/FEVAR'          : '-EVAR',
-                'RGA Abdomen PTA'                       : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
-                'RGA Abdomen Embolisering & ~EVAR'      : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
-                'RGA Aorta PTA'                         : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
-                'RGA Abdomen Stent & ~EVAR'             : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
-                'RGA Aorta Stent'                       : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
-                'Bekken Embolisering'                   : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
-                'RGA Bekken PTA'                        : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
-                'RGA Bekken Stent'                      : 'Abdomen/Bekken/Aorta PTA/Embolisering/Stent/Stentgraft',
-                'RGA Lever & ~Lever TACE & ~LeverTX'    : 'Lever',
-                'RGA Milt'                              : 'Milt/Nyrer',
-                'RGA Nyrer & ~RGA Abdomen Stent & ~EVAR & ~Aorta & ~Bekken Embolisering'
-                                                        : 'Milt/Nyrer',
-                'RGA Nyrer PTA & ~RGA Abdomen Stent & ~EVAR & ~Aorta & ~Bekken Embolisering'                        
-                                                        : 'Milt/Nyrer',
+                
+                'PTC, diagnostikk & ~Nefrostomi'                      : 'PTC/PTBD/ERCP',
+                'Galleveier - PTBD & ~Nefrostomi'                     : 'PTC/PTBD/ERCP',      
+                'PTC Stentinnleggelse & ~Nefrostomi'                  : 'PTC/PTBD/ERCP',
+                'ERCP & ~Nefrostomi'                                  : 'PTC/PTBD/ERCP',
 
-                'RG Abdomen - Abscessografi & ~PTC, diagnostikk & ~Galleveier - PTBD & ~Nefrostomi'
-                                                        : 'RG Abdomen - Abscessografi, Fjerning/Skifte av dren',
-                'RG Abdomen - Skifte av dren & ~PTC, diagnostikk & ~Galleveier - PTBD & ~Nefrostomi'
-                                                        : 'RG Abdomen - Abscessografi, Fjerning/Skifte av dren',
-                'RG Abdomen - Fjerning av dren & ~PTC, diagnostikk & ~Galleveier - PTBD & ~Nefrostomi'
-                                                        : 'RG Abdomen - Abscessografi, Fjerning/Skifte av dren',
+                'RG Defecografi'                        : 'Defecografi',    
+                
+                'Øsophagus'                             : 'Øsofagus/ØVD (enkelt og dobbelt)',
+                'Øsofagus'                             : 'Øsofagus/ØVD (enkelt og dobbelt)',
+                'ØVD/enkelkontrast'                     : 'Øsofagus/ØVD (enkelt og dobbelt)',
+                'ØVD/dobbelkontrast'                    : 'Øsofagus/ØVD (enkelt og dobbelt)',
+
+                'RG Videofluoroskopi & ~Øsofagus'       : 'Videofluoroskopi',
+
+                'RG Nedleggelse av ventrikkelsonde & ~ØVD' : 'Nedleggelse av ventrikkelsonde',
+
+                'RG Abdomen & ~PTC, diagnostikk (int.) & ~ERCP & ~ØVD & ~RG Galleblære & ~Embolisering' : 'RG Abdomen diverse',
+                'RG Galleblære & ~PTC & ~Galleveier'    : 'RG Galleblære (u. PTC eller Galleveier)',
+
+
+               
+
+                # Abdomen/Bekken prosedyrer:
+                'RGV Thorax'                            : 'RGV Thorax',
+                'RGA Bekken Stent/stentgraft (int.)'    : 'Bekken Stentgraft',
+                'Embolisering (int.) & ~Stent/Stentgraft & ~Caput & ~RGA Overex & ~RGA Underex'     : 'Abdomen/Bekken Embolisering',
 
                 # Ekstremiteter:                                        
-                'RGV Underex'                           : 'Underex',
-                'RGA Underex'                           : 'Underex',
-                'RGV Overex'                            : 'Overex',
-                'RGA Overex & ~EVAR & ~Caput'           : 'Overex',
+                'RGV Underex'                           : 'Ekstremiteter',
+                'RGA Underex & ~RGA Bekken'             : 'Ekstremiteter',
+                'RGV Overex & ~RGV Thorax'              : 'Ekstremiteter',
+                'RGA Overex'                            : 'Ekstremiteter',
                 } 
 
     return mapping
