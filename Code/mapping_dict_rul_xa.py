@@ -54,18 +54,18 @@ def get_rul_xa_mapping_dict():
 
                 'RG Defecografi'                        : 'Defecografi',    
                 
-                'Øsophagus'                             : 'Øsofagus/ØVD (enkelt og dobbelt)',
-                'Øsofagus'                             : 'Øsofagus/ØVD (enkelt og dobbelt)',
-                'ØVD/enkelkontrast'                     : 'Øsofagus/ØVD (enkelt og dobbelt)',
-                'ØVD/dobbelkontrast'                    : 'Øsofagus/ØVD (enkelt og dobbelt)',
+                'Øsophagus'                             : 'Øsofagus/ØVD, enkelt og dobbelt',
+                'Øsofagus'                              : 'Øsofagus/ØVD, enkelt og dobbelt',
+                'RG ØVD'                                : 'Øsofagus/ØVD, enkelt og dobbelt',
 
                 'RG Videofluoroskopi & ~Øsofagus'       : 'Videofluoroskopi',
 
                 'RG Nedleggelse av ventrikkelsonde & ~ØVD' : 'Nedleggelse av ventrikkelsonde',
 
-                'RG Abdomen & ~PTC, diagnostikk (int.) & ~ERCP & ~ØVD & ~RG Galleblære & ~Embolisering' : 'RG Abdomen diverse',
-                'RG Galleblære & ~PTC & ~Galleveier'    : 'RG Galleblære (u. PTC eller Galleveier)',
+                'RG Abdomen & ~PTC, diagnostikk (int.) & ~ERCP & ~ØVD & ~RG Galleblære & ~Embolisering & ~RGL' : 'RG Abdomen diverse',
+                'RG Galleblære & ~PTC & ~Galleveier'    : 'RG Galleblære u. PTC eller Galleveier',
 
+                'RGL'                                   : 'Lymfangiografi', 
 
                
 
