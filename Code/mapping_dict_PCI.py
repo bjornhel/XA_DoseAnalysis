@@ -35,12 +35,12 @@ def get_PCI_mapping_dict(include_old_procedure_names=False):
     To change or add to the mapping of procedures, edit the 'mapping' dictionary below.
     """
 
-    mapping = { 'RGV Cor Mitraclip (int.)'                  : 'RGV Mitraclip',
-                'RGA Cor TAVI (int.)'                       : 'RGA TAVI',
-                'RGA Cor Koronarangiografi (int.) & ~RGA Cor PCI & ~RGA Cor PTSMA & ~RGA Cor ECMO & ~RGV Cor PFO'           : 'RGA Koronarangiografi',
-                'RGA Cor PCI & ~RGA Cor ECMO'               : 'RGA PCI',
-                'RGA Cor PTSMA (int.) & ~RGA Cor PCI'       : 'RGA PTSMA',
-                'RGV Cor PFO (int.)'                        : 'RGV PFO'           
+    mapping = { 'RGV Cor Mitraclip (int.)'                  : 'Mitraclip',
+                'RGA Cor TAVI (int.)'                       : 'TAVI',
+                'RGA Cor Koronarangiografi (int.) & ~RGA Cor PCI & ~RGA Cor PTSMA & ~RGA Cor ECMO & ~RGV Cor PFO & ~RGA Cor TAVI'   : 'Koronarangiografi',
+                'RGA Cor PCI & ~RGA Cor ECMO & ~RGA Cor TAVI'   : 'PCI',
+                'RGA Cor PTSMA (int.) & ~RGA Cor PCI'       : 'PTSMA',
+                'RGV Cor PFO (int.)'                        : 'PFO'           
             }
 
     if include_old_procedure_names:

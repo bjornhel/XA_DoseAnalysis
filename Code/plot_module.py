@@ -121,7 +121,7 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
     for i, xtick in enumerate(ax.get_xticklabels()):
         if list_max[i] > y_max:
             ax.annotate('Maks = ' + str(round(list_max[i], 1)) + '\n' + 'n$_{(>'+ str(y_max) + ')}$ = ' + str(list_n_outside[i]), xy=(i, y_max), \
-                        xytext=(i, y_max + y_max/20), ha='center', va='bottom', fontsize=20 , arrowprops=dict(facecolor='black', shrink=0.05))
+                        xytext=(i, y_max + y_max/20), ha='center', va='bottom', fontsize=12 , arrowprops=dict(facecolor='black', shrink=0.05))
 
 
     # Add a different string to each x-ticklabel:
@@ -145,7 +145,7 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
 
 
     # Increase the font size of the x-ticklabels:
-    _ = ax.tick_params(labelsize=20)   
+    _ = ax.tick_params(labelsize=15)   
     print('-'*50)
     print('\n')
 
