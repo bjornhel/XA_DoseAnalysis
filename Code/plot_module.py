@@ -103,7 +103,7 @@ def plot_representative_dose(data, procedure, y_max=20, save=False):
     print('\n')
     bh_report.print_summary(data[data['Mapped Procedures'] == procedure])
     print('\n')
-    bh_report.print_summary_per_lab(data[data['Mapped Procedures'] == procedure])
+    bh_report.print_summary_per_lab(data[data['Mapped Procedures'] == procedure], True)
     # Reduce the range of the y-axis:
     if y_max > 0:
         ax.set_ylim([0, y_max])
