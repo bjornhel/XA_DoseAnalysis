@@ -58,16 +58,43 @@ def print_summary_per_lab(data, ci = False):
               'Range (' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].min(), 2)) + \
               ' - ' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].max(), 2)) + ').')
         
-def print_summary(data):
+def print_summary(data, ci = False):
+    if ci:
+        lci, uci = _calc_ci(data['DAP Total (Gy*cm2)'])
+
     print('Alle: n = {:4}'.format(len(data)) + ', DAP: Median - ' + str(round(data['DAP Total (Gy*cm2)'].median(), 1)) + ',' +\
+            (' 95% CI: [' + str(round(lci, 2)) + ' - ' + str(round(uci, 2)) + ']' if ci else '') + \
             # 25 th percentile:
             ' IQR [' + str(round(data['DAP Total (Gy*cm2)'].quantile(0.25), 1)) + \
-            ' - ' + str(round(data['DAP Total (Gy*cm2)'].quantile(0.75), 1)) + '] (Gy*cm2), ' + \
+            ' - ' + str(round(data['DAP Total (Gy*cm2)'].quantile(0.75), 1)) + '], ' + \
             'Range (' + str(round(data['DAP Total (Gy*cm2)'].min(), 1)) + \
             ' - ' + str(round(data['DAP Total (Gy*cm2)'].max(), 1)) + ').')
+
+def report_exposure_time_all(data, ci = False):
+    if ci:
+        lci, uci = _calc_ci(data['F+A Time (s)'])
     
-def report_exposure_time(data, ci = False):
+    median_min, median_sec = _format_min_sec(data['F+A Time (s)'].median())
+    
+    if ci:
+        lci_min, lci_sec = _format_min_sec(lci)
+        uci_min, uci_sec = _format_min_sec(uci)
+    
+    lIQR_min, lIQR_sec = _format_min_sec(data['F+A Time (s)'].quantile(0.25))
+    uIQR_min, uIQR_sec = _format_min_sec(data['F+A Time (s)'].quantile(0.75))
+    lrange_min, lrange_sec = _format_min_sec(data['F+A Time (s)'].min())
+    urange_min, urange_sec = _format_min_sec(data['F+A Time (s)'].max())
+
+    print('All '+ ': n = {:4}'.format(len(data)) + \
+        ', Exposure time: Median - ' + median_min + ':' + median_sec + ' (min:s),' + \
+        (' 95% CI: [' + lci_min + ':' + lci_sec + ' - ' + uci_min + ':' + uci_sec + ']' if ci else '') + \
+        # 25 th percentile:
+        ' IQR [' + lIQR_min + ':' + lIQR_sec + ' - ' + uIQR_min + ':' + uIQR_sec + '], ' + \
+        'Range (' + lrange_min + ':' + lrange_sec + ' - '  + urange_min + ':' + urange_sec + ').')
+
+def report_exposure_time_per_lab(data, ci = False):
     data = data.sort_values(by=['Modality Room'])
+    
     for lab in data['Modality Room'].unique():
         if ci:
             lci, uci = _calc_ci(data[data['Modality Room'] == lab]['F+A Time (s)'])
