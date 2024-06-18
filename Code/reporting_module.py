@@ -57,7 +57,31 @@ def print_summary_per_lab(data, ci = False):
               ' - ' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].quantile(0.75), 2)) + '], ' + \
               'Range (' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].min(), 2)) + \
               ' - ' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].max(), 2)) + ').')
-        
+
+def print_summary_per_lab_inc_cak(data, ci = False):
+    data = data.sort_values(by=['Modality Room'])
+    for lab in data['Modality Room'].unique():
+        if ci:
+            lci, uci = _calc_ci(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'])
+        print(lab + ': n = {:4}'.format(len(data[data['Modality Room'] == lab])) + \
+              ', DAP: Median - ' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].median(), 2)) + ' (Gy*cm2),' + \
+              (' 95% CI: [' + str(round(lci, 2)) + ' - ' + str(round(uci, 2)) + ']' if ci else '') + \
+              # 25 th percentile:
+              ' IQR [' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].quantile(0.25), 2)) + \
+              ' - ' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].quantile(0.75), 2)) + '], ' + \
+              'Range (' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].min(), 2)) + \
+              ' - ' + str(round(data[data['Modality Room'] == lab]['DAP Total (Gy*cm2)'].max(), 2)) + ').')
+        if ci:
+            lci_cak, uci_cak = _calc_ci(data[data['Modality Room'] == lab]['CAK (mGy)'])
+        print(lab + ': n = {:4}'.format(len(data[data['Modality Room'] == lab])) + \
+              ', CAK: Median - ' + str(round(data[data['Modality Room'] == lab]['CAK (mGy)'].median(), 2)) + ' (mGy),' + \
+              (' 95% CI: [' + str(round(lci_cak, 2)) + ' - ' + str(round(uci_cak, 2)) + ']' if ci else '') + \
+              # 25 th percentile:
+              ' IQR [' + str(round(data[data['Modality Room'] == lab]['CAK (mGy)'].quantile(0.25), 2)) + \
+              ' - ' + str(round(data[data['Modality Room'] == lab]['CAK (mGy)'].quantile(0.75), 2)) + '], ' + \
+              'Range (' + str(round(data[data['Modality Room'] == lab]['CAK (mGy)'].min(), 2)) + \
+              ' - ' + str(round(data[data['Modality Room'] == lab]['CAK (mGy)'].max(), 2)) + ').')
+
 def print_summary(data, ci = False):
     if ci:
         lci, uci = _calc_ci(data['DAP Total (Gy*cm2)'])
