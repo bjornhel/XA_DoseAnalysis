@@ -181,6 +181,37 @@ def _add_optional_columns(data, agg_dict, agg_dict_optional, source, verbose=Fal
             print('\n')
     return agg_dict
 
+
+def import_excel_files_to_dataframe(root_folder):
+    """
+    Imports all Excel files from a folder tree into one DataFrame.
+    
+    Args:
+        root_folder (str): Path to the root folder containing Excel files.
+        
+    Returns:
+        pd.DataFrame: Combined DataFrame with data from all Excel files.
+    """
+    from pathlib import Path
+    # List to store individual DataFrames
+    dataframes = []
+
+    # Traverse through the folder tree
+    for file_path in Path(root_folder).rglob("*.xlsx"):  # Find all Excel files recursively
+        try:
+            # Read Excel file into a DataFrame
+            print(f"Reading {file_path}...")
+            df = pd.read_excel(file_path)
+            df['Source_File'] = file_path.name  # Add a column to track the source file
+            dataframes.append(df)  # Append to list
+        except Exception as e:
+            print(f"Error reading {file_path}: {e}")
+
+    # Combine all DataFrames into one
+    combined_df = pd.concat(dataframes, ignore_index=True)
+    return combined_df
+
+
 # Functions for filtering the IDS7 dataframe:
 def remove_unnecessary_columns(df_ids7, verbose=False):
     """
