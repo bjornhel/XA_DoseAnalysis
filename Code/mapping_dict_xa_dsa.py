@@ -42,6 +42,17 @@ def get_xa_dsa_mapping_dict(include_old_procedure_names=False):
                 'RGA Cor 2-k PM (int.)'                         : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
                 'RGA Cor 1-k PM (int.)'                         : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
                 'RGA Cor Implantasjon PM/ICD (int.)'            : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM'
+
+                
+
+
+
+
+
+
+
+
+
             }
 
     if include_old_procedure_names:

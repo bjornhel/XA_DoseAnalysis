@@ -4,7 +4,7 @@ This module contains a functions for returning a mapping dictionary to facilitat
 The 'Mapped Procedures' column is used to organize the description into useful categories, make relevant plots, etc.
 """
 
-def get_elfys_mapping_dict(include_old_procedure_names=False):
+def get_elfys_mapping_dict():
     """
     Here the user can hardcode the mapping dictionary for Electrophysiology procedures:
 
@@ -37,46 +37,32 @@ def get_elfys_mapping_dict(include_old_procedure_names=False):
 
     mapping = { 'RGA Cor Ablasjon SVT (int.)'                   : 'RGA Cor Ablasjon SVT (int.) m og u 3D',
                 'RGA Cor Ablasjon SVT m 3D (int.)'              : 'RGA Cor Ablasjon SVT (int.) m og u 3D',
+                'RGA Cor Ablasjon VT m 3D (int.)'               : 'RGA Cor Ablasjon VT (int.) m 3D',
             
-                'RGA Cor Ablasjon Atrieflimmer (int.)'          : 'RGA Cor Ablasjon Atrieflimmer (int.) m og u 3D',
+                'RGA Cor Ablasjon Atrieflimmer (int.)'          : 'RGA Cor Ablasjon Atrieflimmer (int.) m og u 3D',             # Utgått?
                 'RGA Cor Ablasjon Atrieflimmer med 3D (int.)'   : 'RGA Cor Ablasjon Atrieflimmer (int.) m og u 3D',
+
+                'RGA Cor Pulsed field ablasjon (elektroporasjon) atrieflimmer' : 'RGA Cor Pulsed field ablasjon (elektroporasjon) atrieflimmer',
+
+                'RGA Cor Cryo Ablasjon Atrieflimmer (int.)'     : 'RGA Cor Cryo Ablasjon Atrieflimmer (int.)',
+
+                'RGA Cor Ablasjon Atrieflutter (int.) & ~Atrieflimmer' : 'RGA Cor Ablasjon Atrieflutter (int.) m og u 3D',
 
                 'RGA Cor Elfys SVT (int.)'                      : 'RGA Cor Elfys VT el. SVT (int.)',
                 'RGA Cor Elfys VT (int.)'                       : 'RGA Cor Elfys VT el. SVT (int.)',
 
+                'RGA Cor CRT-D (int.)'                          : 'RGA Cor CRT-D (int.) ink. CRT-P',
+                'RGA Cor CRT-P (int.)'                          : 'RGA Cor CRT-D (int.) ink. CRT-P',
+
                 'RGA Cor 2-k PM (int.)'                         : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
                 'RGA Cor 1-k PM (int.)'                         : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-                'RGA Cor Implantasjon PM/ICD (int.)'            : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM'}
+                'RGA Cor 2-K ICD (int.)'                        : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
+                'RGA Cor 1-k ICD (int.)'                        : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
+                'RGA Cor Implantasjon PM/ICD (int.) & ~CRT'     : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',         # Utgått?
+                
+                'RGV Cor Biopsi høyre ventrikkel'               : 'RGV Cor Biopsi',
+                'RGV Cor Hø kat, måling av trykk og flow i lille kretsløp & ' +
+                '~RGV Cor Biopsi høyre ventrikkel'              : 'RGV Cor Hø kat, måling av trykk og flow i lille kretsløp',
+                'RGV Cor Høyre kat. Arytmi & ~RGV Cor Biopsi høyre ventrikkel' : 'RGV Cor Høyre kat. Arytmi'}
 
-    if include_old_procedure_names:
-        """
-        Append this section if the data includes procedure names from the era before IDS7 PACS.
-        """
-        # Create a dictionary with the old procedures to be mapped:    
-        mapping_old = { 'RGA Ablasjon SVT'                  : 'RGA Cor Ablasjon SVT (int.) m og u 3D',
-            
-                        'RGA Ablasjon Atrieflimmer'         : 'RGA Cor Ablasjon Atrieflimmer (int.) m og u 3D',
-                        
-                        'RGA Ablasjon Atrieflutter'         : 'RGA Cor Ablasjon Atrieflutter (int.)',
-
-                        'RGA Ablasjon VT'                   : 'RGA Cor Ablasjon VT m 3D (int.)',
-
-                        'RGA CRYO Ablasjon Atrieflimmer'    : 'RGA Cor Cryo Ablasjon Atrieflimmer (int.)',
-
-                        'RGA Elfys SVT'                     : 'RGA Cor Elfys VT el. SVT (int.)',
-                        'RGA Elfys VT'                      : 'RGA Cor Elfys VT el. SVT (int.)',
-
-                        'RGA CRT-D'                         : 'RGA Cor CRT-D (int.)',
-
-                        'RGA CRT-P'                         : 'RGA Cor CRT-P (int.)',
-
-                        'RGA ICD1'                          : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-
-                        'RGA ICD2'                          : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-                        'RGA PM1'                           : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-                        'RGA PM2'                           : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM',
-                        'RGA TPM'                           : 'RGA Cor Implantasjon PM/ICD (int.) ink. 2k og 1k PM'}
-        
-        # append the mapping_old to the mapping dictionary:
-        mapping.update(mapping_old)
     return mapping
