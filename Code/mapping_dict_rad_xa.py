@@ -69,7 +69,7 @@ def get_rad_xa_mapping_dict():
                 'RG Urinveier & ~Nefrostomi & ~Pyelografi' 
                                                         : 'Urethragrafi/Urografi/Urinveier/MUCG', 
                 'RG Defecografi'                        : 'Defecografi',
-                'RG Gastroskopi'                        : 'Gastroskopi',    
+                'RG Gastroskopi & ~PTBD'                : 'Gastroskopi',    
                 'RG Videofluoroskopi & ~Øsofagus & ~ØVD & ~Svelgfunksjon'
                                                         : 'Videofluoroskopi',
                  
@@ -116,7 +116,7 @@ def get_rad_xa_mapping_dict():
                 
                 # Thorax prosedyrer:
                 'RGV Pulmonalarterier'                  : 'Pulmonalarterier/PTA/Embolisering',
-                'RGV Thorax'                            : 'RGV Thorax',
+                'RGV Thorax & ~Pulmonalarterier'        : 'RGV Thorax',
 
                 # Andre
                 'RGL'                                   : 'Lymfangiografi', 
