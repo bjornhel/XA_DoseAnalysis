@@ -37,10 +37,10 @@ def get_rad_xa_mapping_dict():
 
     # Create the mapping dictionary:
     mapping = { # Caput og Collum prosedyrer:
-                'Caput Embolisering'                    : 'Caput Embolisering',
-                'Caput Trombektomi & ~Caput Embolisering'
-                                                        : 'Trombektomi',
-                'Caput og collum & ~Caput Embolisering & ~Caput Trombektomi'    
+                'RGA Caput Embolisering'                : 'Caput Embolisering',
+                'RGA Caput Trombektomi & ~Caput Embolisering'
+                                                        : '',
+                'RGA Caput og collum & ~Caput Embolisering & ~Caput Trombektomi'    
                                                         : 'Caput og collum',
                 'Myelografi'                            : 'Myelografi',
                 'RG Columna - Vertebroplastikk (int.)'  : 'Vertebroplastikk',  # UL
@@ -57,10 +57,9 @@ def get_rad_xa_mapping_dict():
                 'RG Shuntventil'                        : 'Shuntveier/Shuntventil',
                 'Diafragmabevegelse'                    : 'Diafragmabevegelse',
                 'Hysterosalpingografi'                  : 'HSG',
-                'RG Svelgfunksjon'                      : 'Svelgfunksjon',      
-                'Øsofagus & ~Svelgfunksjon'             : 'Øsofagus/ØVD, eks. svelgfunksjon',
-                'Øsophagus & ~Svelgfunksjon'            : 'Øsofagus/ØVD, eks. svelgfunksjon',
-                'RG ØVD & ~Svelgfunksjon'               : 'Øsofagus/ØVD, eks. svelgfunksjon', 
+                'Øsofagus'                              : 'Øsofagus/ØVD, enkelt og dobbelt',
+                'Øsophagus'                             : 'Øsofagus/ØVD, enkelt og dobbelt',
+                'RG ØVD'                                : 'Øsofagus/ØVD, enkelt og dobbelt', 
                 'RG Nedleggelse av ventrikkelsonde & ~ØVD' 
                                                         : 'Nedleggelse av ventrikkelsonde',
                 'Urethragrafi'                          : 'Urethragrafi/Urografi/Urinveier/MUCG',
@@ -70,20 +69,17 @@ def get_rad_xa_mapping_dict():
                                                         : 'Urethragrafi/Urografi/Urinveier/MUCG', 
                 'RG Defecografi'                        : 'Defecografi',
                 'RG Gastroskopi'                        : 'Gastroskopi',    
-                'RG Videofluoroskopi & ~Øsofagus & ~ØVD & ~Svelgfunksjon'
-                                                        : 'Videofluoroskopi',
+                'RG Videofluoroskopi & ~Øsofagus & ~ØVD': 'Videofluoroskopi',
                  
                 # Abdomen/Bekken prosedyrer:
-                'Nefrostomi & innleggelse av dren & ~PTC'      
-                                                        : 'Nefrostomi innleggelse', 
-                'Nefrostomi & ~innleggelse av dren & ~PTC'  
-                                                        : 'Nefrostomi/Pyelografi skifte eller fjerning',
+                'Nefrostomi & innleggelse av dren'      : 'Nefrostomi innleggelse', 
+                'Nefrostomi & ~innleggelse av dren'     : 'Nefrostomi/Pyelografi skifte eller fjerning',
                 'Pyelografi & ~Nefrostomi'              : 'Nefrostomi/Pyelografi skifte eller fjerning',
                 'Lever TACE'                            : 'TACE',
-                'PTC, diagnostikk'                      : 'PTC/PTBD/ERCP',
+                'PTC, diagnostikk & ~Nefrostomi'        : 'PTC/PTBD/ERCP',
                 'Galleveier - PTBD'                     : 'PTC/PTBD/ERCP',
-                'PTC Stentinnleggelse'                  : 'PTC/PTBD/ERCP',
-                'ERCP'                                  : 'PTC/PTBD/ERCP',
+                'PTC Stentinnleggelse & ~Nefrostomi'    : 'PTC/PTBD/ERCP',
+                'ERCP & ~Nefrostomi'                    : 'PTC/PTBD/ERCP',
                 'RG Galleblære & ~PTC & ~Galleveier'    : 'RG Galleblære u. PTC eller Galleveier',               
                 'BEVAR/FEVAR'                           : 'BEVAR/FEVAR',
                 'TEVAR & ~BEVAR/FEVAR'                  : 'TEVAR',
@@ -110,8 +106,8 @@ def get_rad_xa_mapping_dict():
                                                         : 'RG Abdomen - Abscessografi, Fjerning/Skifte av dren',
                 'RG Abdomen - Fjerning av dren & ~PTC, diagnostikk & ~Galleveier - PTBD & ~Galleblære & ~Nefrostomi'
                                                         : 'RG Abdomen - Abscessografi, Fjerning/Skifte av dren',
-                #'RG Abdomen & ~PTC, diagnostikk (int.) & ~ERCP & ~ØVD & ~Galleveier - PTBD & ~RG Galleblære & ~Embolisering & ~RGL & ~dren & ~Abscessografi' 
-                #                                        : 'RG Abdomen diverse',
+                'RG Abdomen & ~PTC, diagnostikk (int.) & ~ERCP & ~ØVD & ~Galleveier - PTBD & ~RG Galleblære & ~Embolisering & ~RGL & ~dren & ~Abscessografi' 
+                                                        : 'RG Abdomen diverse',
 
                 
                 # Thorax prosedyrer:
