@@ -4,7 +4,7 @@ This module contains a functions for returning a mapping dictionary to facilitat
 The 'Mapped Procedures' column is used to organize the description into useful categories, make relevant plots, etc.
 """
 
-def get_PCI_mapping_dict(include_old_procedure_names=False):
+def get_PCI_mapping_dict():
     """
     Here the user can hardcode the mapping dictionary for lab39 procedures:
 
@@ -37,19 +37,11 @@ def get_PCI_mapping_dict(include_old_procedure_names=False):
 
     mapping = { 'RGV Cor Mitraclip (int.)'                  : 'Mitraclip',
                 'RGA Cor TAVI (int.)'                       : 'TAVI',
-                'RGA Cor Koronarangiografi (int.) & ~RGA Cor PCI & ~RGA Cor PTSMA & ~RGA Cor ECMO & ~RGV Cor PFO & ~RGA Cor TAVI'   : 'Koronarangiografi',
-                'RGA Cor PCI & ~RGA Cor ECMO & ~RGA Cor TAVI'   : 'PCI',
+                'RGA Cor Koronarangiografi (int.) & ~RGA Cor PCI & ~RGA Cor PTSMA & ~RGA Cor ECMO & ~RGV Cor PFO & ~RGA Cor TAVI'   
+                                                            : 'Koronarangiografi',
+                'RGA Cor PCI & ~RGA Cor ECMO & ~RGA Cor TAVI'   
+                                                            : 'PCI',
                 'RGA Cor PTSMA (int.) & ~RGA Cor PCI'       : 'PTSMA',
                 'RGV Cor PFO (int.)'                        : 'PFO'           
             }
-
-    if include_old_procedure_names:
-        """
-        Append this section if the data includes procedure names from the era before IDS7 PACS.
-        """
-        # Create a dictionary with the old procedures to be mapped:    
-        mapping_old = { }
-        
-        # append the mapping_old to the mapping dictionary:
-        mapping.update(mapping_old)
     return mapping
